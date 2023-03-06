@@ -1,0 +1,107 @@
+/* Use this to edit the body style */
+body {
+  background-color: #1434A4;
+}
+
+/* Use this to edit the main logo header style */
+h1 {
+  color:orange;
+  font-family:georgia,garamond,serif;
+  font-size: 100px;
+  font-style:italic;
+  text-align: center;
+}
+
+.btn-group button {
+  background-color: orange; 
+  color: black;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-block;
+  height: 50px;
+  width: 60px;
+  margin-left: -8px;
+  text-align: center;
+}
+
+.orders-btn {
+  font-size:small;
+  margin-right: 200px;
+}
+
+/* Use for changing color when hovering over button */
+.btn-group button:hover {
+  background-color: RoyalBlue;
+}
+
+input {
+  font-size: 1rem;
+}
+
+.directory {
+  width: 100%;
+  min-height: 1vh;
+  text-align: left;
+  display: inline-flex;
+  height: 50px;
+  margin-top: -8px;
+  min-width: 200px;
+}
+
+.search-bar {
+  width: 100%;
+  max-width: 700px;
+  background: rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  border-radius: 60px;
+  padding: 10px 10px;
+  margin-top: 2px;
+  position: relative;
+}
+
+.search-bar input {
+  background: transparent;
+  flex: 1;
+  border: 0;
+  outline: none;
+  /* padding: 24px 20px; */
+  font-size: 20px;
+  color: #cac7ff;
+}
+
+::placeholder {
+  color: #cac7ff;
+}
+
+.search-bar button {
+  border: 0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  background: #cac7ff;
+  cursor: pointer;
+}
+
+.image {
+  height: 200px;
+  width: 200px;
+}
+
+.grid {
+  width: 100%;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-rows: repeat(auto-fill, minmax(200px 1fr));
+}
+
+.card {
+  border: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  height: 200px;
+  width: 200px;
+}
