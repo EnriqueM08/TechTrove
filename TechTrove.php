@@ -27,15 +27,7 @@
             </form>
         </div>
     </head>
-    <body>
+    <body id = "body">
         <h1>TechTrove</h1>
-        <!-- Commented out but can be used to include php file to html if needed -->
-        <!-- <?php include('SQLConnect.php')?> -->
-        <!-- <p1 style = "color: black;font-family: fantasy;font-size: 20px;font-style: normal;">Data from database:</p1>
-        <p2 style = "color: black;font-family: 'Times New Roman', Times, serif;font-size: small;font-style: normal;"> -->
-            <!-- <?php getCustomerData(); ?> -->
-        <!-- </p2> -->
-        <!-- Gonna add cards here -->
-        
     </body>
 </html>

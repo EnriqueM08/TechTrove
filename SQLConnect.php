@@ -6,70 +6,92 @@
     $database = "temptrove";
     $aResult;
 
+    //When an ajax call is made will determine which function if any should be ran and have its results
+    // returned. 
     if( !isset($_POST['functionname']) ) { $aResult['error'] = 'No function name!'; }
 
     if( !isset($aResult['error']) ) {
 
         switch($_POST['functionname']) {
-            case 'getCustomerData':
-                $aResult = getCustomerData($_POST['parameter']);
+            case 'getProductData':
+                $aResult = getProductData($_POST['parameter']);
                 break;
-
+            case 'getCustomerData':
+                $aResult = getCustomerData($_POST['user'], $_POST['pass']);
+                break;
             default:
                $aResult['error'] = 'Not found function '.$_POST['functionname'].'!';
                break;
         }
 
     }
-    echo json_encode($aResult);
+    echo json_encode($aResult); //Returns results to javaScript in JSON format.
 
-    function getCustomerData($searched){
+    function getProductData($searched){
         global $host, $username, $password, $database;
         //Connects to the database and will die and print error if connect fails
         $conn = new mysqli($host, $username, $password, $database);
 
+        //Connection failed
         if($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-        //Printing that connection was properly made
-        // echo "Connected successfully";
-        // echo "</br>";
-
-        //TESTING: This code can be used to prepare a query then run and bind the results to the given variables
-        // if ($result = $conn ->prepare("SELECT * FROM customers")) {
-        //     $result->execute();
-        //     //$result->bind_result($cID, $firstName, $lastName, $mailingAddress, $mailingCity, $mailingState, $mailingZipCode, $billingAddress, $phoneNumber, $email);
-        // }
-
+        //TODO: Might want to change to parameterized statements to prevent injection attacks.(PROBABLY NOT NECESSARY BUT SOMETHING TO THINK ABOUT SECURITY WISE)
+        // Query that will be called to find the products
         $query = "SELECT * FROM products WHERE pName LIKE '%";
         $query .= $searched;
         $query .= "%' ORDER BY pName";
 
+        //Calls query and sets results to the returned results
+        //TODO: Might add statement to return error again if no results which can then be displayed to screen
         $result = mysqli_query($conn, $query);
         $rows = array();
         while($r = mysqli_fetch_assoc($result)) {
             $rows[] = $r;
         }
-        //echo json_encode($rows);
-
-        //TESTING: Can be used to test that information is properly gathered from the database and displays to screen
-        // while ($result->fetch()) {
-        //     echo 'ID: '.$cID.'<br>';
-        //     echo 'First Name: '.$firstName.'<br>';
-        //     echo 'Last Name: '.$lastName.'<br>';
-        //     echo 'Mailing Address: '.$mailingAddress.'<br>';
-        //     echo 'Mailing City: '.$mailingCity.'<br>';
-        //     echo 'Mailing State: '.$mailingState.'<br>';
-        //     echo 'Mailing ZipCode: '.$mailingZipCode.'<br>';
-        //     echo 'Billing Address: '.$billingAddress.'<br>';
-        //     echo 'Phone Number: '.$phoneNumber.'<br>';
-        //     echo 'Email: '.$email.'<br>';
-        // }
 
         //Closes database connection
         $conn -> close();
 
+        //Returns the resulting rows
         return json_encode($rows);
+    }
+
+    //This function will connect to the database and see if an account exists with the username and password user, pass
+    function getCustomerData($user, $pass){
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Conncetion failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        //TODO: Might want to change to parameterized statements to prevent injection attacks.(PROBABLY NOT NECESSARY BUT SOMETHING TO THINK ABOUT SECURITY WISE)
+        // Query that will be called to determine if user and pass exists in database I have already update database to ensure case sensitivity.
+        $query = "SELECT * FROM customers WHERE username = '";
+        $query .= $user;
+        $query .= "' AND password = '";
+        $query .= $pass;
+        $query .= "'";
+
+        //Runs query and sets results to result
+        $result = mysqli_query($conn, $query);
+        //If there are no matching users then rows is given an error key to let javaScript know login failed.
+        //Can make more detailed if we wish to determine if user exists or such
+        if (mysqli_num_rows($result)==0) {
+            $rows = array("error" => true);
+            return json_encode($rows);
+        }
+        
+        //Otherwise will get the matching row
+        $row = mysqli_fetch_assoc($result);
+        
+        //Closes database connection
+        $conn -> close();
+
+        return json_encode($row);
     }
 ?>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3307
--- Generation Time: Mar 06, 2023 at 01:43 AM
+-- Generation Time: Mar 07, 2023 at 04:41 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -28,6 +28,8 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `customers` (
+  `username` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `password` varchar(128) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `cID` int(11) NOT NULL,
   `firstName` varchar(50) DEFAULT NULL,
   `lastName` varchar(50) DEFAULT NULL,
@@ -44,9 +46,9 @@ CREATE TABLE `customers` (
 -- Dumping data for table `customers`
 --
 
-INSERT INTO `customers` (`cID`, `firstName`, `lastName`, `mailingAddress`, `mailingCity`, `mailingState`, `mailingZipCode`, `billingAddress`, `phoneNumber`, `email`) VALUES
-(1, 'John', 'Doe', '123 Mailing St', 'City', 'State', 12345, '1234 Billing Dr', '0123456789', 'john.doe@email.com'),
-(2, 'Jane', 'Doe', '456 Little House St', 'TEST CITY', 'TEST STATE', 67890, 'TEST BILLING RD', '9876543210', 'jane.doe@gmail.com');
+INSERT INTO `customers` (`username`, `password`, `cID`, `firstName`, `lastName`, `mailingAddress`, `mailingCity`, `mailingState`, `mailingZipCode`, `billingAddress`, `phoneNumber`, `email`) VALUES
+('testingUser', 'PASSWORD123', 1, 'John', 'Doe', '123 Mailing St', 'City', 'State', 12345, '1234 Billing Dr', '0123456789', 'john.doe@email.com'),
+('testUser2', 'PASSWORD123$S', 2, 'Jane', 'Doe', '456 Little House St', 'TEST CITY', 'TEST STATE', 67890, 'TEST BILLING RD', '9876543210', 'jane.doe@gmail.com');
 
 -- --------------------------------------------------------
 
@@ -112,7 +114,8 @@ CREATE TABLE `saleandrev` (
 --
 ALTER TABLE `customers`
   ADD PRIMARY KEY (`cID`),
-  ADD UNIQUE KEY `cID` (`cID`);
+  ADD UNIQUE KEY `cID` (`cID`),
+  ADD UNIQUE KEY `username` (`username`);
 
 --
 -- Indexes for table `orders`

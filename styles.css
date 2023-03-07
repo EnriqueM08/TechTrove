@@ -12,6 +12,7 @@ h1 {
   text-align: center;
 }
 
+/* Use this to edit the directory buttons */
 .btn-group button {
   background-color: orange; 
   color: black;
@@ -25,6 +26,8 @@ h1 {
   text-align: center;
 }
 
+/* Creates margin between btn group and search bar and can update order button font
+   can add picture later if we want too*/
 .orders-btn {
   font-size:small;
   margin-right: 200px;
@@ -35,10 +38,7 @@ h1 {
   background-color: RoyalBlue;
 }
 
-input {
-  font-size: 1rem;
-}
-
+/* Used to change the directory div style */
 .directory {
   width: 100%;
   min-height: 1vh;
@@ -49,6 +49,7 @@ input {
   min-width: 200px;
 }
 
+/* Used to change the style of the search bar itself */
 .search-bar {
   width: 100%;
   max-width: 700px;
@@ -61,20 +62,22 @@ input {
   position: relative;
 }
 
+/* Used to change the style of the search bar input */
 .search-bar input {
   background: transparent;
   flex: 1;
   border: 0;
   outline: none;
-  /* padding: 24px 20px; */
   font-size: 20px;
   color: #cac7ff;
 }
 
+/* Can be used to update the placeholder text style */
 ::placeholder {
   color: #cac7ff;
 }
 
+/* Can change the style of the search button */
 .search-bar button {
   border: 0;
   border-radius: 50%;
@@ -84,11 +87,13 @@ input {
   cursor: pointer;
 }
 
+/* Used for updating image style */
 .image {
   height: 200px;
   width: 200px;
 }
 
+/* Grid style for displaying results in ordered fashion */
 .grid {
   width: 100%;
   display: grid;
@@ -97,6 +102,7 @@ input {
   grid-template-rows: repeat(auto-fill, minmax(200px 1fr));
 }
 
+/* Card style which will display results in a card can expand if needed to present results in different format */
 .card {
   border: none;
   margin: 0;
@@ -104,4 +110,54 @@ input {
   cursor: pointer;
   height: 200px;
   width: 200px;
+}
+
+/* Controls the style of the login div */
+.login {
+  align-self: flex-start;
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
+
+/* Controls the style of the login forms such as username and password */
+.login form {
+  border: none;
+  border-bottom: 1px solid #3a3a3a;
+  margin-bottom: 10px;
+  border-radius: 3px;
+  outline: none;
+  padding: 0px 0px 5px 5px;
+}
+
+/* Controls the style of the login input text */
+.login input {
+  background: transparent;
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-size: 20px;
+  color: #cac7ff;
+}
+
+/* Controls the style of the login button */
+.login-btn {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+}
+
+/* TEMP FOR CHANGING THE STYLE OF THE TEMPORARY MESSAGE THAT SAYS WE ARE LOGGED IN */
+.log-txt {
+  width: 200px;
+  font-style: italic;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: medium;
+  color: black;
 }
