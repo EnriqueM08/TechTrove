@@ -55,6 +55,12 @@ function clearPage() {
   const loginMsg = document.getElementById("log");
   if(loginMsg != null)
     loginMsg.remove();
+  const cart = document.getElementById("cartDisplay");
+  if(cart != null)
+    cart.remove();
+  const orders = document.getElementById("orderDisplay");
+  if(orders != null)
+    orders.remove();
 }
 
 //Will check if the current user is logged in or not
@@ -155,16 +161,99 @@ function switchToLogin() {
 
 //Function to switch screen to cart information page
 function switchToCart() {
-  //TODO: Populate page with cart information
+  const form = document.createElement("form");
+  form.className = "shoppingList";
+  form.id = "cartDisplay";
+  const fieldset = document.createElement("fieldset");
+  fieldset.classList.add("fieldset");
+  const legend = document.createElement("legend");
+  legend.textContent = "Shopping cart";
+  const item = document.createElement("label");
+  item.className = "name";
+  // const inputItem = document.createElement("input");
+  // inputItem.type = "text";
+  // inputItem.name = "data";
+  const quantity = document.createElement("label");
+  quantity.className = "data";
+  // const inputQuantity = document.createElement("input");
+  // inputQuantity.type = "text";
+  // inputQuantity.name = "data";
+  // const save = document.createElement("button");
+  // save.textContent = "Save";
+  // save.onclick = "SaveItem()";
+  // const update = document.createElement("button");
+  // update.textContent = "Update";
+  // update.onclick = "ModifyItem()";
+  // const remove = document.createElement("button");
+  // remove.textContent = "Delete";
+  // remove.onclick = "RemoveItem()";
+  const div = document.createElement("div");
+  div.id = "itemsTable";
+  const h2 = document.createElement("h2");
+  h2.textContent = "Shopping List";
+  const table = document.createElement("table");
+  table.id = "list";
+  const label = document.createElement("label");
+  label.textContent="* Delete all items";
+  const input = document.createElement("input");
+  input.type = "button";
+  input.value = "Clear";
+  input.onclick = "ClearAll()";
+  body.append(form);
+  form.append(fieldset);
+  fieldset.append(legend);
+  fieldset.append(item);
+  // item.append(inputItem);
+  fieldset.append(quantity);
+  // quantity.append(inputQuantity);
+  // fieldset.append(save);
+  // fieldset.append(update);
+  // fieldset.append(remove);
+  form.append(div);
+  div.append(h2);
+  div.append(table);
+  div.append(label);
+  label.append(input);
+  doShowAll();
 }
 
 //Function to switch screen to order information page
 function switchToOrders() {
   if(isLoggedIn()) {
-    //TODO: Populate page with order information from customers orders
+    const form = document.createElement("form");
+    form.className = "orderList";
+    form.id = "orderDisplay";
+    const fieldset = document.createElement("fieldset");
+    fieldset.classList.add("fieldset");
+    const legend = document.createElement("legend");
+    legend.textContent = "Orders";
+    const div = document.createElement("div");
+    div.id = "orderTable";
+    const h2 = document.createElement("h2");
+    h2.textContent = "Order List";
+    const table = document.createElement("table");
+    table.id = "list";
+    const label = document.createElement("label");
+    label.textContent="* Delete all items";
+    const input = document.createElement("input");
+    input.type = "button";
+    input.value = "Clear";
+    input.onclick = "ClearAll()";
+    body.append(form);
+    form.append(fieldset);
+    fieldset.append(legend);
+    form.append(div);
+    div.append(h2);
+    div.append(table);
+    div.append(label);
+    label.append(input);
+    //doShowAll();
   }
   else {
-    //TODO: Prompt user to login to view previous order information or provide info to view a single order
+    const h2 = document.createElement("h2");
+    h2.textContent = "If you have an account please log in to view orders. Otherwise please enter email and order number below!";
+    h2.id = "orderDisplay";
+    body.append(h2);
   }
 }
 
@@ -202,4 +291,48 @@ function attemptLogin(username, password) {
       }
     }
   }); 
+}
+
+function doShowAll() {
+  var list = "<tr><th>Item</th><th>Value</th></tr>\n";
+  var i = 0;
+  for(i = 0; i <= localStorage.length-i; i++) {
+    if(localStorage.key(i) == "item") {
+      list += "<tr><td>" + key + "</td>\n<td>" + localStorage.getItem(key) + "</td></tr>\n";
+    }
+  }
+  if(list == "<tr><th>Item</th><th>Value</th></tr>\n") {
+    list += "<tr><td><i>NO ITEMS!</i></td>\n<td><i>NO ITEMS!</i></td></tr>\n";
+  }
+  document.getElementById('list').innerHTML = list;
+}
+
+function SaveItem() {
+  var name = "item";
+  var data = document.forms.ShoppingList.data.value;
+  localStorage.setItem(name, data);
+  doShowAll();
+}
+
+function ModifyItem() {
+  var name1 = document.forms.ShoppingList.name.value;
+  var data1 = document.forms.ShoppingList.data.value;
+
+  if(localStorage.getItem(name1) != null) {
+    localStorage.setItem(name1, data1);
+    document.forms.ShoppingList.data.value = localStorage.getItem(name1);
+  }
+
+  doShowAll();
+}
+
+function RemoveItem() {
+  var name = document.forms.ShoppingList.name.value;
+  document.forms.ShoppingList.data.value = localStorage.removeItem(name);
+  doShowAll();
+}
+
+function ClearAll() {
+  localStorage.clear();
+  doShowAll();
 }
