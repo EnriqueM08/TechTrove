@@ -1,9 +1,10 @@
 <?php
     //Intializes the necessary login data for the database
-    $username = "root";
-    $password = "";
-    $host = "localhost:3307";
-    $database = "temptrove";
+    $username = "masterTech";
+    $password = "TechTrovePassword";
+    $host = "rds-techtrove.cxvqlxygejzi.us-east-2.rds.amazonaws.com";
+    $database = "TechTroveDB";
+    $port = "3306";
     $aResult;
 
     //When an ajax call is made will determine which function if any should be ran and have its results
@@ -28,9 +29,9 @@
     echo json_encode($aResult); //Returns results to javaScript in JSON format.
 
     function getProductData($searched){
-        global $host, $username, $password, $database;
+        global $host, $username, $password, $database, $port;
         //Connects to the database and will die and print error if connect fails
-        $conn = new mysqli($host, $username, $password, $database);
+        $conn = new mysqli($host, $username, $password, $database, $port);
 
         //Connection failed
         if($conn->connect_error) {
