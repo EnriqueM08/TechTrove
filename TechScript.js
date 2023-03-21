@@ -108,6 +108,9 @@ function searchProducts(query) {
         }
         */
       }
+    },
+    error: function(xhr, status, error) {
+       alert("Something went wrong!");
     }
   }); 
 }
