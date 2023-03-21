@@ -110,7 +110,7 @@ function searchProducts(query) {
       }
     },
     error: function(xhr, status, error) {
-       alert(xhr);
+       alert(JSON.parse(xhr));
     }
   }); 
 }
