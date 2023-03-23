@@ -76,7 +76,7 @@ function searchProducts(query) {
   //Currently grabbing all data may switch to only grab pImagePath and pID.
   jQuery.ajax({
     type: "POST",
-    url: 'SQLConnect.php',
+    url: 'https://sqlconnectortech.s3.us-east-2.amazonaws.com/SQLConnect.php',
     dataType: 'JSON',
     data: {functionname: 'getProductData', parameter: query},
 
