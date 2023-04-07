@@ -8,6 +8,7 @@ searchBtn.addEventListener('click', event => {
   if(query != "")
     //Will call function as long as the search text is not empty
     searchProducts(query);
+  //alert("CONNECTED REMOTE");
 });
 
 //This will handle when the home button is pressed.
@@ -76,7 +77,7 @@ function searchProducts(query) {
   //Currently grabbing all data may switch to only grab pImagePath and pID.
   jQuery.ajax({
     type: "POST",
-    url: "SQLConnect.php",
+    url: 'SQLConnect.php',
     dataType: 'JSON',
     data: {functionname: 'getProductData', parameter: query},
 
@@ -85,30 +86,37 @@ function searchProducts(query) {
       const div = document.createElement("div");
       div.className = "grid";
       div.id = "tempGrid";
+      const table = document.createElement("table");
+      table.className = "table table-bordered"
+      
       //Parse through returned JSON from SQLConnect function and create values
       var temp = JSON.parse(obj);
+      const body = document.querySelector('body');
+      body.append(div);
+      var stringTmp ="";
+      stringTmp += "<div class = \"outTable\">";
+      stringTmp += "<table> <thead> <tr> <th> IMAGE </th> <th> NAME </th> <th> PRICE </th> </tr> </thead> <tbody> ";
       //Will likely be an array so will iterate through getting values and updating areas.
       for (var i = 0; i < temp.length; i++) {
         var object = temp[i];
-        //Button will allow for clicking on item to display product information.
-        const btn = document.createElement("button");
-        btn.className = "card";
-        const img = document.createElement("img");
-        img.className = "image";
-        const body = document.querySelector('body');
-        //Appends data to the body displaying results to the screen.
-        body.append(div);
-        div.append(btn);
-        btn.append(img);
-        img.setAttribute('src', object["pImagePath"]);
-        /* TESTING: Used to test that all propertys are properly being retrieved from the database
-        will need to create way to store data or another database call to retrieve data when displaying product info.
+        stringTmp += "<tr> <td><img src=\"";
+        stringTmp += object["pImagePath"];
+        stringTmp += "\" alt=\"NO IMAGE\" width = 100px></td> <td>";
+        stringTmp += object["pName"];
+        stringTmp += "</td> <td>$";
+        stringTmp += object["pPrice"];
+        stringTmp += "</td> </tr>";
+        /*
         for (var property in object) {
           console.log('item ' + i + ': ' + property + '=' + object[property]);
-        }
-        */
+        }*/
       }
-    }
+      stringTmp += "</tbody> </table </div> </div> </div>";
+      div.innerHTML = stringTmp;
+     },
+     error: function(xhr, status, error) {
+       //alert(xhr);
+     }
   }); 
 }
 
@@ -128,35 +136,28 @@ function switchToLogin() {
   const div = document.createElement("div");
   div.className = "login";
   div.id = "tempLogin";
-  const username = document.createElement("form");
-  username.className = "username";
-  const usernameInput = document.createElement("input");
-  usernameInput.type = "text";
-  usernameInput.id = "usernameInput";
-  usernameInput.placeholder = "Enter Username";
-  const password = document.createElement("form");
-  password.className = "password";
-  const passwordInput = document.createElement("input");
-  passwordInput.type = "text";
-  passwordInput.id = "passwordInput";
-  passwordInput.placeholder = "Enter Password";
-  const loginBtn = document.createElement("button");
-  loginBtn.className = "login-btn";
-  loginBtn.id = "login";
-  loginBtn.textContent = "LOGIN";
+  const body = document.querySelector('body');
   body.append(div);
-  div.append(username);
-  username.append(usernameInput);
-  div.append(password);
-  password.append(passwordInput);
-  div.append(loginBtn);
+  var stringTmp ="<form class=\"username\"><input type=\"text\" id=\"usernameInput\" placeholder=\"Enter Username\"></form><form class=\"password\"><input type=\"text\" id=\"passwordInput\" placeholder=\"Enter Password\"></form><button class=\"login-btn\" id=\"login\">LOGIN</button><button id=\"register\" class=\"register-btn\">REGISTER</button><button id=\"admin\" class=\"admin-btn\">ADMIN LOGIN</button>";
+  div.innerHTML = stringTmp;
+  const loginBtn = document.getElementById("login");
   loginBtn.addEventListener('click', event => {
+    let usernameTxt = document.getElementById("usernameInput").value;
+    let passwordTxt = document.getElementById("passwordInput").value;   
+    if(usernameTxt != "" && passwordTxt != "")
+      attemptLogin(usernameTxt, passwordTxt, "getCustomerData");
+  });
+  const registerBtn = document.getElementById("register");
+  registerBtn.addEventListener('click', event => {
+    switchToRegister();
+  });
+  const adminLoginBtn = document.getElementById("admin")
+  adminLoginBtn.addEventListener('click', event => {
     let usernameTxt = document.getElementById("usernameInput").value;
     let passwordTxt = document.getElementById("passwordInput").value;
     if(usernameTxt != "" && passwordTxt != "")
-      attemptLogin(usernameTxt, passwordTxt);
+      attemptLogin(usernameTxt, passwordTxt, "attemptAdminLogin");
   });
-  //TODO: Need to add button for creating an account and then function to update page for registering
 }
 
 //Function to switch screen to cart information page
@@ -164,17 +165,10 @@ function switchToCart() {
   const form = document.createElement("form");
   form.className = "shoppingList";
   form.id = "cartDisplay";
-  const fieldset = document.createElement("fieldset");
-  fieldset.classList.add("fieldset");
-  const legend = document.createElement("legend");
-  legend.textContent = "Shopping cart";
-  const item = document.createElement("label");
-  item.className = "name";
+  var stringTmp ="<fieldset class=\"fieldset\"><legend>Shopping cart</legend><label class=\"name\"></label><label class=\"data\"></label></fieldset><div id=\"itemsTable\"><h2>Shopping List</h2><table id=\"list\"><tbody><tr><th>Item</th><th>Value</th></tr> <tr><td><i>NO ITEMS!</i></td> <td><i>NO ITEMS!</i></td></tr></tbody></table><label>* Delete all items<input type=\"button\" value=\"Clear\"></label></div>";
   // const inputItem = document.createElement("input");
   // inputItem.type = "text";
   // inputItem.name = "data";
-  const quantity = document.createElement("label");
-  quantity.className = "data";
   // const inputQuantity = document.createElement("input");
   // inputQuantity.type = "text";
   // inputQuantity.name = "data";
@@ -187,33 +181,13 @@ function switchToCart() {
   // const remove = document.createElement("button");
   // remove.textContent = "Delete";
   // remove.onclick = "RemoveItem()";
-  const div = document.createElement("div");
-  div.id = "itemsTable";
-  const h2 = document.createElement("h2");
-  h2.textContent = "Shopping List";
-  const table = document.createElement("table");
-  table.id = "list";
-  const label = document.createElement("label");
-  label.textContent="* Delete all items";
-  const input = document.createElement("input");
-  input.type = "button";
-  input.value = "Clear";
-  input.onclick = "ClearAll()";
   body.append(form);
-  form.append(fieldset);
-  fieldset.append(legend);
-  fieldset.append(item);
+  form.innerHTML = stringTmp;
   // item.append(inputItem);
-  fieldset.append(quantity);
   // quantity.append(inputQuantity);
   // fieldset.append(save);
   // fieldset.append(update);
   // fieldset.append(remove);
-  form.append(div);
-  div.append(h2);
-  div.append(table);
-  div.append(label);
-  label.append(input);
   doShowAll();
 }
 
@@ -223,31 +197,9 @@ function switchToOrders() {
     const form = document.createElement("form");
     form.className = "orderList";
     form.id = "orderDisplay";
-    const fieldset = document.createElement("fieldset");
-    fieldset.classList.add("fieldset");
-    const legend = document.createElement("legend");
-    legend.textContent = "Orders";
-    const div = document.createElement("div");
-    div.id = "orderTable";
-    const h2 = document.createElement("h2");
-    h2.textContent = "Order List";
-    const table = document.createElement("table");
-    table.id = "list";
-    const label = document.createElement("label");
-    label.textContent="* Delete all items";
-    const input = document.createElement("input");
-    input.type = "button";
-    input.value = "Clear";
-    input.onclick = "ClearAll()";
+    var stringTmp = "<fieldset class=\"fieldset\"><legend>Orders</legend></fieldset><div id=\"orderTable\"><h2>Order List</h2><table id=\"list\"></table><label>* Delete all items<input type=\"button\" value=\"Clear\"></label></div>";
     body.append(form);
-    form.append(fieldset);
-    fieldset.append(legend);
-    form.append(div);
-    div.append(h2);
-    div.append(table);
-    div.append(label);
-    label.append(input);
-    //doShowAll();
+    form.innerHTML = stringTmp;
   }
   else {
     const h2 = document.createElement("h2");
@@ -259,16 +211,182 @@ function switchToOrders() {
 
 //Function to switch to register page
 function switchToRegister() {
-  //TODO: ADD elements to create regestering screen.
+  const loginBtn = document.getElementById("login");
+  if(loginBtn != null)
+    loginBtn.remove();
+  const registerBtn = document.getElementById("register");
+  if(registerBtn != null)
+    registerBtn.remove();
+  const adminBtn = document.getElementById("admin");
+  if(adminBtn != null)
+    adminBtn.remove();
+  var stringTmp = "<form class=\"username\"><input type=\"text\" id=\"usernameInput\" placeholder=\"Enter Username\"></form><form class=\"password\"><input type=\"text\" id=\"passwordInput\" placeholder=\"Enter Password\"></form><form class=\"pCheck\"><input type=\"text\" id=\"passwordCheck\" placeholder=\"Reenter Password\"></form><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
+            // const pCheck = document.createElement("form");
+            // pCheck.className = "pCheck";
+            // const passwordCheck = document.createElement("input");
+            // passwordCheck.type = "text";
+            // passwordCheck.id = "passwordCheck";
+            // passwordCheck.placeholder = "Reenter Password";
+            // const fName = document.createElement("form");
+            // fName.className = "fName";
+            // const firstName = document.createElement("input");
+            // firstName.type = "text";
+            // firstName.id = "firstName";
+            // firstName.placeholder = "Enter First Name";
+            // const lName = document.createElement("form");
+            // lName.className = "lName";
+            // const lastName = document.createElement("input");
+            // lastName.type = "text";
+            // lastName.id = "lastName";
+            // lastName.placeholder = "Enter Last Name";
+            // const mAddress = document.createElement("form");
+            // mAddress.className = "mAddress";
+            // const mailingAddress = document.createElement("input");
+            // mailingAddress.type = "text";
+            // mailingAddress.id = "mailingAddress";
+            // mailingAddress.placeholder = "Enter Mailing Address";
+            // const mCity = document.createElement("form");
+            // mCity.className = "mCity";
+            // const mailingCity = document.createElement("input");
+            // mailingCity.type = "text";
+            // mailingCity.id = "mailingCity";
+            // mailingCity.placeholder = "Enter Mailing City";
+            // const mState = document.createElement("form");
+            // mState.className = "mState";
+            // const mailingState = document.createElement("input");
+            // mailingState.type = "text";
+            // mailingState.id = "mailingState";
+            // mailingState.placeholder = "Enter Mailing State";
+            // const mZipCode = document.createElement("form");
+            // mZipCode.className = "mZipCode";
+            // const mailingZipCode = document.createElement("input");
+            // mailingZipCode.type = "text";
+            // mailingZipCode.id = "mailingZipCode";
+            // mailingZipCode.placeholder = "Enter Mailing Zip Code";
+            // const bAddress = document.createElement("form");
+            // bAddress.className = "bAddress";
+            // const billingAddress = document.createElement("input");
+            // billingAddress.type = "text";
+            // billingAddress.id = "billingAddress";
+            // billingAddress.placeholder = "Enter Billing Address";
+            // const pNumber = document.createElement("form");
+            // pNumber.className = "pNumber";
+            // const phoneNumber = document.createElement("input");
+            // phoneNumber.type = "text";
+            // phoneNumber.id = "phoneNumber";
+            // phoneNumber.placeholder = "Enter Phone Number";
+            // const eMail = document.createElement("form");
+            // eMail.className = "eMail";
+            // const email = document.createElement("input");
+            // email.type = "text";
+            // email.id = "email";
+            // email.placeholder = "Enter Email";
+
+  const div = document.getElementById("tempLogin");
+  div.innerHTML = stringTmp;
+  const register = document.getElementById("register");
+            // register.id = "register";
+            // register.textContent = "REGISTER";
+            // register.className = "register-btn";
+
+
+  // div.append(pCheck);
+  // pCheck.append(passwordCheck);
+  
+  // div.append(fName);
+  // fName.append(firstName);
+
+  // div.append(lName);
+  // lName.append(lastName);
+  
+  // div.append(mAddress);
+  // mAddress.append(mailingAddress);
+  
+  // div.append(mCity);
+  // mCity.append(mailingCity);
+  
+  // div.append(mState);
+  // mState.append(mailingState);
+  
+  // div.append(mZipCode);
+  // mZipCode.append(mailingZipCode);
+  
+  // div.append(bAddress);
+  // bAddress.append(billingAddress);
+  
+  // div.append(pNumber);
+  // pNumber.append(phoneNumber);
+  
+  // div.append(eMail);
+  // eMail.append(email);
+
+  // div.append(register);
+
+  register.addEventListener('click', event => {
+    let usernameTxt = document.getElementById("usernameInput").value;
+    let passwordTxt = document.getElementById("passwordInput").value;
+    let passwordCheckTxt = document.getElementById("passwordCheck").value;
+    let firstNameTxt = document.getElementById("firstName").value;
+    let lastNameTxt = document.getElementById("lastName").value;
+    let mailingAddressTxt = document.getElementById("mailingAddress").value;
+    let mailingCityTxt = document.getElementById("mailingCity").value;
+    let mailingStateTxt = document.getElementById("mailingState").value;
+    let mailingZipCodeTxt = document.getElementById("mailingZipCode").value;
+    let billingAddressTxt = document.getElementById("billingAddress").value;
+    let phoneNumberTxt = document.getElementById("phoneNumber").value;
+    let emailTxt = document.getElementById("email").value;
+    if(usernameTxt == "" || passwordTxt == "" || passwordCheckTxt == "" || firstNameTxt == "" || lastNameTxt == "" || mailingAddressTxt == "" || mailingCityTxt == "" || mailingStateTxt == "" || mailingZipCodeTxt == "" || billingAddressTxt == "" || phoneNumberTxt == "" || emailTxt == "")
+    {
+      alert("PLEASE FILL OUT ALL FIELDS");
+    }
+    else if(passwordTxt != passwordCheckTxt) {
+      alert("PLEASE MAKESURE PASSWORDS MATCH!");
+    }
+    else
+    {
+      const parsed = parseInt(mailingZipCodeTxt);
+      if (isNaN(parsed)) { 
+        alert("PLEASE ONLY ENTER NUMBERS IN ZIPCODE ENTRY!");
+      }
+      else{
+        registerNewUser(usernameTxt, passwordTxt, firstNameTxt, lastNameTxt, mailingAddressTxt, mailingCityTxt, mailingStateTxt, mailingZipCodeTxt, billingAddressTxt, phoneNumberTxt, emailTxt);
+        clearPage();
+      }
+      //alert("Registered!");
+    }
+  });
+}
+
+function registerNewUser(username, password, firstName, lastName, mailingAddress, mailingCity, mailingState, mailingZipCode, billingAddress, phoneNumber, email)
+{
+  console.log("RAN NEW USER");
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'text',
+    data: {functionname: 'registerNewUser', user: username, pass: password, fName: firstName, lName: lastName, mAddress: mailingAddress, mCity: mailingCity, mState: mailingState, mZipCode: mailingZipCode, bAddress: billingAddress, pNumber: phoneNumber, eMail: email},
+
+    success: function (obj) {
+      //If there is an error value then the login was unsucceful we can display more information if wanted.
+      if (obj != "\"added\"") {
+        alert(obj);
+      }
+      else {
+        body.classList.add("logged-in");
+        console.log("SUCCESS!");
+        //TODO: Should probably add element or maybe another class to body to keep track of username or userID
+      }
+    }
+  }); 
 }
 
 //Will use jQuery to make ajax call to connect to database and attempt to login to account
-function attemptLogin(username, password) {
+function attemptLogin(username, password, functionName) {
   jQuery.ajax({
     type: "POST",
     url: 'SQLConnect.php',
     dataType: 'JSON',
-    data: {functionname: 'getCustomerData', user: username, pass: password},
+    data: {functionname: functionName, user: username, pass: password},
 
     success: function (obj) {
       var temp = JSON.parse(obj);
@@ -288,6 +406,10 @@ function attemptLogin(username, password) {
         //This will add the logged-in class to the body which will allow the page to know user is logged in
         body.classList.add("logged-in");
         //TODO: Should probably add element or maybe another class to body to keep track of username or userID
+        if(functionName == "attemptAdminLogin") 
+        {
+          goToAdminScreen();
+        }
       }
     }
   }); 
