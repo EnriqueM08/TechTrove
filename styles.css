@@ -12,6 +12,30 @@ h1 {
   text-align: center;
 }
 
+/* Used to edit the header of the login form */
+.loginHeader{
+  color: orange;
+  font-family:georgia,garamond,serif;
+  font-style: italic;
+  margin-left: 115px;
+  text-decoration: underline;
+}
+
+/* Used to edit the header of the create account and registration form */
+.createHeader{
+  color: orange;
+  font-family:georgia,garamond,serif;
+  font-style: italic;
+  text-decoration: underline;
+}
+
+/* Used to maintain layout of elements on the page */
+.wrapper {
+  margin-left:auto;
+  margin-right:auto;
+  width:960px;
+}
+
 /* Use this to edit the directory buttons */
 .btn-group button {
   background-color: orange; 
@@ -115,15 +139,78 @@ h1 {
 }
 
 /* Controls the style of the login div */
-.login {
+/* .login {
   align-self: flex-start;
   display: grid;
   justify-items: center;
   align-items: center;
+} */
+
+/* Controls the style of the login div */
+.login {
+  align-self: flex-start;
+  display: inline-block;
+  justify-items: left;
+  align-items: left;
+}
+
+/* Controls the style of the create account div */
+.create {
+  align-self: flex-start;
+  display: inline-block;
+  margin-left: 350px;
+}
+
+/* Used to edit the vertical line used in the profile page */
+.vl {
+  border-left: 4px solid black;
+  height: 250px;
+  position: absolute;
+  left: 50%;
+  top: 300px;
+}
+
+/* Controls the style of the register div */
+.register {
+  align-self: flex-start;
+  display: grid;
+  justify-items: center; 
+  align-items: center; 
 }
 
 /* Controls the style of the login forms such as username and password */
+/* .login form {
+  border: none;
+  border-bottom: 1px solid #3a3a3a;
+  margin-bottom: 10px;
+  border-radius: 3px;
+  outline: none;
+  padding: 0px 0px 5px 5px;
+} */
+
+/* Controls the style of the login forms such as username and password */
 .login form {
+  border: none;
+  border-bottom: 1px solid #3a3a3a;
+  border-radius: 3px;
+  margin-left: 100px;
+  margin-top: 25px;
+  outline: none;
+  padding: 0px 0px 5px 5px;
+}
+
+/* Controls the style of the login forms such as username, password, and confirm password */
+.create form {
+  border: none;
+  border-bottom: 1px solid #3a3a3a;
+  border-radius: 3px;
+  margin-top: 25px;
+  outline: none;
+  padding: 0px 0px 5px 5px;
+}
+
+/* Controls the style of the login forms such as username, password, and confirm password */
+.register form {
   border: none;
   border-bottom: 1px solid #3a3a3a;
   margin-bottom: 10px;
@@ -142,7 +229,27 @@ h1 {
   color: #cac7ff;
 }
 
-/* Controls the style of the login button */
+/* Controls the style of the create account input text */
+.create input {
+  background: transparent;
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-size: 20px;
+  color: #cac7ff;
+}
+
+/* Controls the style of the create account input text */
+.register input {
+  background: transparent;
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-size: 20px;
+  color: #cac7ff;
+}
+
+/* Controls the style of the login button
 .login-btn {
   width: 200px;
   padding: 7px;
@@ -153,23 +260,54 @@ h1 {
   background-color: #3a3a3a;
   cursor: pointer;
   outline: none;
+} */
+
+/* Controls the style of the login button */
+.login-btn {
+  position: relative;
+  padding: 7px;
+  margin-left: 100px;
+  margin-top: 75px;
+  width: 200px;
+  border: 1px solid black;
+  border-radius: 5px;
+  color: #1434A4;
+  font-weight: bold;
+  background-color: orange;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Controls the style of the create account button*/
+.create-btn {
+  position: relative;
+  padding: 7px;
+  margin-top: 25px;
+  width: 200px;
+  border: 1px solid black;
+  border-radius: 5px;
+  color: #1434A4;
+  font-weight: bold;
+  background-color: orange;
+  cursor: pointer;
+  outline: none;
 }
 
 /* Controls the style of the register button */
 .register-btn {
   width: 200px;
   padding: 7px;
-  border: none;
+  border: 1px solid black;
   border-radius: 5px;
-  color: white;
+  color: #1434A4;
   font-weight: bold;
-  background-color: #3a3a3a;
+  background-color: orange;
   cursor: pointer;
   outline: none;
   margin-top: 20px;
 }
 
-/* Controls the style of the register button */
+/* Controls the style of the admin button */
 .admin-btn {
   width: 200px;
   padding: 7px;
@@ -180,7 +318,7 @@ h1 {
   background-color: #3a3a3a;
   cursor: pointer;
   outline: none;
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 /* TEMP FOR CHANGING THE STYLE OF THE TEMPORARY MESSAGE THAT SAYS WE ARE LOGGED IN */

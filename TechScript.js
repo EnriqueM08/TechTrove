@@ -53,6 +53,15 @@ function clearPage() {
   const login = document.getElementById("tempLogin");
   if(login != null)
     login.remove();
+  const create = document.getElementById("tempCreate");
+  if(create != null)
+    create.remove();
+  const register = document.getElementById("tempRegister");
+  if(register != null)
+    register.remove();
+  const verticalLine = document.getElementById("verticalLine");
+  if(verticalLine != null)
+    verticalLine.remove();   
   const loginMsg = document.getElementById("log");
   if(loginMsg != null)
     loginMsg.remove();
@@ -133,28 +142,155 @@ function switchToProfile() {
 
 //This will switch to the login page allowing for user to login to account
 function switchToLogin() {
-  const div = document.createElement("div");
-  div.className = "login";
-  div.id = "tempLogin";
-  const body = document.querySelector('body');
-  body.append(div);
-  var stringTmp ="<form class=\"username\"><input type=\"text\" id=\"usernameInput\" placeholder=\"Enter Username\"></form><form class=\"password\"><input type=\"text\" id=\"passwordInput\" placeholder=\"Enter Password\"></form><button class=\"login-btn\" id=\"login\">LOGIN</button><button id=\"register\" class=\"register-btn\">REGISTER</button><button id=\"admin\" class=\"admin-btn\">ADMIN LOGIN</button>";
-  div.innerHTML = stringTmp;
-  const loginBtn = document.getElementById("login");
+
+  const verticalLine = document.createElement("div");
+  verticalLine.className = "vl";
+  verticalLine.id = "verticalLine";
+
+  body.append(verticalLine);
+
+  const loginHeader = document.createElement("h2");
+  loginHeader.className = "loginHeader"
+  const loginNode = document.createTextNode("Login");
+  loginHeader.append(loginNode);
+
+  const createHeader = document.createElement("h2");
+  createHeader.className = "createHeader"
+  const createNode = document.createTextNode("Create an Account");
+  createHeader.append(createNode);
+
+  const loginDiv = document.createElement("div");
+  loginDiv.className = "login";
+  loginDiv.id = "tempLogin";
+
+  const loginUsername = document.createElement("form");
+  loginUsername.className = "username";
+  loginUsername.id = "loginUsername";
+  const loginUsernameInput = document.createElement("input");
+  loginUsernameInput.type = "text";
+  loginUsernameInput.id = "loginUsernameInput";
+  loginUsernameInput.placeholder = "Enter Username";
+  const loginPassword = document.createElement("form");
+  loginPassword.className = "password";
+  const loginPasswordInput = document.createElement("input");
+  loginPasswordInput.type = "password";
+  loginPasswordInput.id = "loginPasswordInput";
+  loginPasswordInput.placeholder = "Enter Password";
+  const loginBtn = document.createElement("button");
+  loginBtn.className = "login-btn";
+  loginBtn.id = "login";
+  loginBtn.textContent = "LOGIN";
+
+  const createDiv = document.createElement("div");
+  createDiv.className = "create";
+  createDiv.id = "tempCreate";
+  
+  loginDiv.append(loginHeader);
+  createDiv.append(createHeader);
+
+  const createUsername = document.createElement("form");
+  createUsername.className = "username"
+  createUsername.id = "createUsername";
+  const createUsernameInput = document.createElement("input");
+  createUsernameInput.type = "text";
+  createUsernameInput.id = "createUsernameInput";
+  createUsernameInput.placeholder = "Create Username";
+  const createPassword = document.createElement("form");
+  createPassword.className = "password";
+  createPassword.id = "createPassword";
+  const createPasswordInput = document.createElement("input");
+  createPasswordInput.type = "password";
+  createPasswordInput.id = "createPasswordInput";
+  createPasswordInput.placeholder = "Create Password";
+  const confirmPassword = document.createElement("form");
+  confirmPassword.className = "password";
+  confirmPassword.id = "confirmPassword";
+  const confirmPasswordInput = document.createElement("input");
+  confirmPasswordInput.type = "password";
+  confirmPasswordInput.id = "confirmPasswordInput";
+  confirmPasswordInput.placeholder = "Confirm Password";
+  const createBtn = document.createElement("button");
+  createBtn.className = "create-btn";
+  createBtn.id = "create";
+  createBtn.textContent = "CREATE ACCOUNT";
+
+  const adminLoginBtn = document.createElement("button");
+  adminLoginBtn.className = "admin-btn";
+  adminLoginBtn.id = "admin";
+  adminLoginBtn.textContent = "ADMIN LOGIN";
+
+  const wrapDiv = document.createElement("div");
+  wrapDiv.className = "wrapper";
+  wrapDiv.id = "wrapDiv";
+
+  const registerDiv = document.createElement("div");
+  registerDiv.className = "register";
+  registerDiv.id = "tempRegister";
+
+  body.append(wrapDiv);
+
+  wrapDiv.appendChild(loginDiv);
+  wrapDiv.appendChild(createDiv);
+  wrapDiv.appendChild(registerDiv);
+  registerDiv.append(adminLoginBtn);
+
+  loginDiv.append(loginUsername);
+  loginUsername.append(loginUsernameInput);
+  loginDiv.append(loginPassword);
+  loginPassword.append(loginPasswordInput);
+  loginDiv.append(loginBtn);
+
+  createDiv.append(createUsername);
+  createUsername.append(createUsernameInput);
+  createDiv.append(createPassword);
+  createPassword.append(createPasswordInput);
+  createDiv.append(confirmPassword);
+  confirmPassword.append(confirmPasswordInput);
+  createDiv.append(createBtn);
+
   loginBtn.addEventListener('click', event => {
-    let usernameTxt = document.getElementById("usernameInput").value;
-    let passwordTxt = document.getElementById("passwordInput").value;   
+    let usernameTxt = document.getElementById("loginUsernameInput").value;
+    let passwordTxt = document.getElementById("loginPasswordInput").value;
     if(usernameTxt != "" && passwordTxt != "")
       attemptLogin(usernameTxt, passwordTxt, "getCustomerData");
+    else
+      alert("PLEASE FILL OUT ALL FIELDS");
   });
-  const registerBtn = document.getElementById("register");
-  registerBtn.addEventListener('click', event => {
-    switchToRegister();
+
+  createBtn.addEventListener('click', event => {
+    let usernameTxt = document.getElementById("createUsernameInput").value;
+    let passwordTxt = document.getElementById("createPasswordInput").value;
+    let confirmPasswordTxt = document.getElementById("confirmPasswordInput").value;
+    if(passwordTxt != confirmPasswordTxt)
+      alert("PLEASE MAKESURE PASSWORDS MATCH!");
+    else if(usernameTxt != "" && passwordTxt != "")
+      switchToRegister(usernameTxt, passwordTxt);
+    else
+      alert("PLEASE FILL OUT ALL FIELDS");
   });
-  const adminLoginBtn = document.getElementById("admin")
+
+  // const div = document.createElement("div");
+  // div.className = "login";
+  // div.id = "tempLogin";
+  // const body = document.querySelector('body');
+  // body.append(div);
+  // var stringTmp ="<form class=\"username\"><input type=\"text\" id=\"usernameInput\" placeholder=\"Enter Username\"></form><form class=\"password\"><input type=\"text\" id=\"passwordInput\" placeholder=\"Enter Password\"></form><button class=\"login-btn\" id=\"login\">LOGIN</button><button id=\"register\" class=\"register-btn\">REGISTER</button><button id=\"admin\" class=\"admin-btn\">ADMIN LOGIN</button>";
+  // div.innerHTML = stringTmp;
+  // const loginBtn = document.getElementById("login");
+  // loginBtn.addEventListener('click', event => {
+  //   let usernameTxt = document.getElementById("usernameInput").value;
+  //   let passwordTxt = document.getElementById("passwordInput").value;   
+  //   if(usernameTxt != "" && passwordTxt != "")
+  //     attemptLogin(usernameTxt, passwordTxt, "getCustomerData");
+  // });
+  // const registerBtn = document.getElementById("register");
+  // registerBtn.addEventListener('click', event => {
+  //   switchToRegister();
+  // });
+  // const adminLoginBtn = document.getElementById("admin")
   adminLoginBtn.addEventListener('click', event => {
-    let usernameTxt = document.getElementById("usernameInput").value;
-    let passwordTxt = document.getElementById("passwordInput").value;
+    let usernameTxt = document.getElementById("loginUsernameInput").value;
+    let passwordTxt = document.getElementById("loginPasswordInput").value;
     if(usernameTxt != "" && passwordTxt != "")
       attemptLogin(usernameTxt, passwordTxt, "attemptAdminLogin");
   });
@@ -210,17 +346,20 @@ function switchToOrders() {
 }
 
 //Function to switch to register page
-function switchToRegister() {
-  const loginBtn = document.getElementById("login");
-  if(loginBtn != null)
-    loginBtn.remove();
-  const registerBtn = document.getElementById("register");
-  if(registerBtn != null)
-    registerBtn.remove();
-  const adminBtn = document.getElementById("admin");
-  if(adminBtn != null)
-    adminBtn.remove();
-  var stringTmp = "<form class=\"username\"><input type=\"text\" id=\"usernameInput\" placeholder=\"Enter Username\"></form><form class=\"password\"><input type=\"text\" id=\"passwordInput\" placeholder=\"Enter Password\"></form><form class=\"pCheck\"><input type=\"text\" id=\"passwordCheck\" placeholder=\"Reenter Password\"></form><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
+// function switchToRegister() {
+function switchToRegister(usernameTxt, passwordTxt) {
+  const login = document.getElementById("tempLogin");
+  if(login != null)
+    login.remove();
+  const create = document.getElementById("tempCreate");
+  if(create != null)
+    create.remove();
+  const verticalLine = document.getElementById("verticalLine");
+  if(verticalLine != null)
+    verticalLine.remove();    
+   
+  // var stringTmp = "<form class=\"username\"><input type=\"text\" id=\"usernameInput\" placeholder=\"Enter Username\"></form><form class=\"password\"><input type=\"text\" id=\"passwordInput\" placeholder=\"Enter Password\"></form><form class=\"pCheck\"><input type=\"text\" id=\"passwordCheck\" placeholder=\"Reenter Password\"></form><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
+  var stringTmp = "<h2 class=\"createHeader\">Registration Almost Complete</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
             // const pCheck = document.createElement("form");
             // pCheck.className = "pCheck";
             // const passwordCheck = document.createElement("input");
@@ -282,7 +421,7 @@ function switchToRegister() {
             // email.id = "email";
             // email.placeholder = "Enter Email";
 
-  const div = document.getElementById("tempLogin");
+  const div = document.getElementById("tempRegister");
   div.innerHTML = stringTmp;
   const register = document.getElementById("register");
             // register.id = "register";
@@ -323,9 +462,9 @@ function switchToRegister() {
   // div.append(register);
 
   register.addEventListener('click', event => {
-    let usernameTxt = document.getElementById("usernameInput").value;
-    let passwordTxt = document.getElementById("passwordInput").value;
-    let passwordCheckTxt = document.getElementById("passwordCheck").value;
+    // let usernameTxt = document.getElementById("usernameInput").value;
+    // let passwordTxt = document.getElementById("passwordInput").value;
+    // let passwordCheckTxt = document.getElementById("passwordCheck").value;
     let firstNameTxt = document.getElementById("firstName").value;
     let lastNameTxt = document.getElementById("lastName").value;
     let mailingAddressTxt = document.getElementById("mailingAddress").value;
@@ -335,13 +474,14 @@ function switchToRegister() {
     let billingAddressTxt = document.getElementById("billingAddress").value;
     let phoneNumberTxt = document.getElementById("phoneNumber").value;
     let emailTxt = document.getElementById("email").value;
-    if(usernameTxt == "" || passwordTxt == "" || passwordCheckTxt == "" || firstNameTxt == "" || lastNameTxt == "" || mailingAddressTxt == "" || mailingCityTxt == "" || mailingStateTxt == "" || mailingZipCodeTxt == "" || billingAddressTxt == "" || phoneNumberTxt == "" || emailTxt == "")
+    // if(usernameTxt == "" || passwordTxt == "" || passwordCheckTxt == "" || firstNameTxt == "" || lastNameTxt == "" || mailingAddressTxt == "" || mailingCityTxt == "" || mailingStateTxt == "" || mailingZipCodeTxt == "" || billingAddressTxt == "" || phoneNumberTxt == "" || emailTxt == "")
+    if(firstNameTxt == "" || lastNameTxt == "" || mailingAddressTxt == "" || mailingCityTxt == "" || mailingStateTxt == "" || mailingZipCodeTxt == "" || billingAddressTxt == "" || phoneNumberTxt == "" || emailTxt == "")
     {
       alert("PLEASE FILL OUT ALL FIELDS");
     }
-    else if(passwordTxt != passwordCheckTxt) {
-      alert("PLEASE MAKESURE PASSWORDS MATCH!");
-    }
+    // else if(passwordTxt != passwordCheckTxt) {
+    //   alert("PLEASE MAKESURE PASSWORDS MATCH!");
+    // }
     else
     {
       const parsed = parseInt(mailingZipCodeTxt);
