@@ -301,7 +301,7 @@ function switchToCart() {
   const form = document.createElement("form");
   form.className = "shoppingList";
   form.id = "cartDisplay";
-  var stringTmp ="<fieldset class=\"fieldset\"><legend>Shopping cart</legend><label class=\"name\"></label><label class=\"data\"></label></fieldset><div id=\"itemsTable\"><h2>Shopping List</h2><table id=\"list\"><tbody><tr><th>Item</th><th>Value</th></tr> <tr><td><i>NO ITEMS!</i></td> <td><i>NO ITEMS!</i></td></tr></tbody></table><label>* Delete all items<input type=\"button\" value=\"Clear\"></label></div>";
+  var stringTmp ="<fieldset class=\"fieldset\"><legend>Shopping cart</legend><label class=\"name\"></label><label class=\"data\"></label></fieldset><div id=\"itemsTable\"><h2>Shopping List</h2><table id=\"list\"><tbody><tr><th>Item</th><th>Value</th></tr> <tr><td><i>NO ITEMS!</i></td> <td><i>NO ITEMS!</i></td></tr></tbody></table><label>* Delete all items<input type=\"button\" class = \"clrBtn\" value=\"Clear\"></label></div>";
   // const inputItem = document.createElement("input");
   // inputItem.type = "text";
   // inputItem.name = "data";

@@ -344,4 +344,11 @@ table, th, td {
   font-size: 20px;  
   padding-inline: 200px;
   /* margin-left: 15px; */
-  }    
+  }
+
+/* styling for clear button*/
+.clrBtn {
+	background-color: orange;
+	border: 1px solid black;
+	margin-left: 10px;
+}
