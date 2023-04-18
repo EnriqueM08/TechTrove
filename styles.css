@@ -344,4 +344,55 @@ table, th, td {
   font-size: 20px;  
   padding-inline: 200px;
   /* margin-left: 15px; */
-  }    
+}
+
+.product {
+  display: flex;
+  border: 1px solid black;
+  background: gray
+}
+
+.left {
+  padding: 20px;
+}
+
+.right {
+  padding: 20px;
+}
+
+.horizontal-centering {
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+
+.order-Btn {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  margin-top: 15px;
+  margin-bottom: 50px;
+}
+
+.fieldset {
+  display:grid;
+}
+
+.orderDisplay {
+  padding-top: 20px;
+  display: grid;
+}
+
+.testClass {
+  padding-block: 10px;
+  width: 90px;
+  display: block;
+}

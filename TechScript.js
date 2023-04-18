@@ -1,5 +1,6 @@
 "use strict"; //Forces strict JavaScript which will make it easier to catch bugs
 
+var shippingCost = 10.00;
 // This will handle when the search button is pressed.
 let searchBtn = document.getElementById("search");
 searchBtn.addEventListener('click', event => {
@@ -7,7 +8,7 @@ searchBtn.addEventListener('click', event => {
   let query = document.getElementById("search-text").value;
   if(query != "")
     //Will call function as long as the search text is not empty
-    searchProducts(query);
+    searchProducts(query, "default");
   //alert("CONNECTED REMOTE");
 });
 
@@ -71,62 +72,152 @@ function clearPage() {
   const orders = document.getElementById("orderDisplay");
   if(orders != null)
     orders.remove();
+  const productInfo = document.getElementById("productInfo");
+  if(productInfo != null)
+    productInfo.remove();
+  const total = document.getElementById("totalDisplay");
+  if(total != null)
+    total.remove();
+  const billing = document.getElementById("billing");
+  if(billing != null)
+    billing.remove();
+}
+
+function clearResults() {
+  var products = document.getElementsByClassName("product");
+  for(var i = 0; i < products.length; i++){
+    products[i].remove();
+    i--;
+  }
 }
 
 //Will check if the current user is logged in or not
 function isLoggedIn() {
-  if(document.body.classList.contains("logged-in"))
+  if(sessionStorage.getItem("ID") != null)
     return true;
   return false;
 }
 
 //This function will search through the database and find products user is searching for.
-function searchProducts(query) {
+function searchProducts(query, filterName) {
   //Uses ajax to make request to SQLConnect to connect to database and get data.
   //Currently grabbing all data may switch to only grab pImagePath and pID.
   jQuery.ajax({
     type: "POST",
     url: 'SQLConnect.php',
     dataType: 'JSON',
-    data: {functionname: 'getProductData', parameter: query},
+    data: {functionname: 'getProductData', parameter: query, parameterTwo: filterName},
 
     success: function (obj) {
       //If successful will create new elemets to display data
-      const div = document.createElement("div");
-      div.className = "grid";
-      div.id = "tempGrid";
-      const table = document.createElement("table");
-      table.className = "table table-bordered"
+      var div = document.getElementById("tempGrid");
+      if(div == null)
+      {
+        div = document.createElement("div");
+        div.className = "grid";
+        div.id = "tempGrid";
+        const body = document.querySelector('body');
+        body.append(div);
+      }
       
       //Parse through returned JSON from SQLConnect function and create values
       var temp = JSON.parse(obj);
-      const body = document.querySelector('body');
-      body.append(div);
-      var stringTmp ="";
-      stringTmp += "<div class = \"outTable\">";
-      stringTmp += "<table> <thead> <tr> <th> IMAGE </th> <th> NAME </th> <th> PRICE </th> </tr> </thead> <tbody> ";
-      //Will likely be an array so will iterate through getting values and updating areas.
+      const tempFilter = document.getElementsByClassName("filter-group");
+      var stringTmp = "";
+      if(tempFilter.length == 0)
+      {
+        stringTmp += "<div class=\"filter-group\"><label>SORT BY: </label> <select class=\"form-control\" id =\"filter\"><option>Default</option><option>Price: Low to High</option><option>Price: High to Low</option><option>Alphabetical</option><option>Newest Arrivals</option><option>Availability</option></select></div>";
+      }
+        //Will likely be an array so will iterate through getting values and updating areas.
       for (var i = 0; i < temp.length; i++) {
         var object = temp[i];
-        stringTmp += "<tr> <td><img src=\"";
+        stringTmp += "<div class = \"product\"> <div class = \"left\"> <button id =\"";
+        stringTmp += object["pID"];
+        stringTmp += "\"><img src = \"";
         stringTmp += object["pImagePath"];
-        stringTmp += "\" alt=\"NO IMAGE\" width = 100px></td> <td>";
+        stringTmp += "\" alt=\"NO IMAGE\" width = 200px></button></div> <div class = \"right\"> <p class=\"title\">";
         stringTmp += object["pName"];
-        stringTmp += "</td> <td>$";
+        stringTmp += "</p> <p class =\"price\">";
         stringTmp += object["pPrice"];
-        stringTmp += "</td> </tr>";
-        /*
-        for (var property in object) {
-          console.log('item ' + i + ': ' + property + '=' + object[property]);
-        }*/
+        stringTmp += "</p> <p class = \"description\">"
+        stringTmp += object["pDescription"]
+        stringTmp += "</p> </div> </div>";
       }
-      stringTmp += "</tbody> </table </div> </div> </div>";
-      div.innerHTML = stringTmp;
+      div.insertAdjacentHTML('beforeend', stringTmp);
+      for (var i = 0; i < temp.length; i++)
+      {
+        var object = temp[i];
+        let itemBtn = document.getElementById(object["pID"].toString());
+        //NEED to fix this still.
+        itemBtn.addEventListener('click', event => {
+          for(var j = 0; j < temp.length; j++)
+          {
+            if(temp[j]["pID"] == itemBtn.id)
+              var selected = temp[j];
+          }
+          clearPage();
+          //Will display previous orders if logged in or ask for order number if not
+          switchToDetailScreen(selected["pName"], selected["pDescription"], selected["pImagePath"], selected["pPrice"], selected["pCategory"], selected["pInventory"], selected);
+        });
+      }
+      let filterMenu = document.getElementById("filter");
+      filterMenu.addEventListener("change", function(e){
+        e.stopImmediatePropagation();
+        let filterName = filterMenu.value;
+        clearResults();
+        searchProducts(query, filterName);
+      });
      },
      error: function(xhr, status, error) {
        //alert(xhr);
      }
   }); 
+}
+
+function switchToDetailScreen(productName, productDescription, productImage, productPrice, productCategory, productInventory, product) {
+  const div = document.createElement("div");
+  div.className = "productInfo";
+  div.id = "productInfo";
+  var stringTmp ="<h1 class=\"productName\" id = \"pName\"></h1><h1 class=\"productDesc\" id = \"pDescription\"></h1><img class=\"productImage\" id = \"pImage\">  <img><h1 class=\"productPrice\" id = \"pPrice\"></h1><h1 class=\"productCategory\" id = \"pCategory\"></h1><h1 class=\"productInventory\" id = \"pInventory\"></h1><button class=\"addCart\" id= \"addBtn\">ADD TO CART</button>";
+  body.append(div);
+  div.innerHTML = stringTmp;
+  let pName = document.getElementById("pName");
+  pName.textContent = "Name: " + productName;
+
+  let pDescription = document.getElementById("pDescription");
+  pDescription.textContent = "Description: " + productDescription;
+
+  let pImage = document.getElementById("pImage");
+  pImage.textContent = "Image: " + productImage;
+  
+  let pPrice = document.getElementById("pPrice");
+  pPrice.textContent = "Price: " + productPrice;
+
+  let pCategory = document.getElementById("pCategory");
+  pCategory.textContent = "Category: " + productCategory;
+
+  checkCart();
+  var cart = sessionStorage.getItem("cart");
+  var cartObject = JSON.parse(cart);
+  var items = cartObject.items;
+  for(var i = 0; i < items.length; i++)
+  {
+    var item = items[i];
+    if(product["pID"] == item.pID)
+    {
+      productInventory -= item.pInventory;
+    }
+  }
+  let pInventory = document.getElementById("pInventory");
+  pInventory.textContent = "Inventory: " + productInventory;
+
+  let addBtn = document.getElementById("addBtn");
+  addBtn.addEventListener('click', event => {
+    addToCart(product);
+    productInventory -= 1;
+    pInventory.textContent = "Inventory: " + productInventory;
+    //Will display previous orders if logged in or ask for order number if not
+  });
 }
 
 //This function will handle updating elements to switch to the profile screen
@@ -262,32 +353,13 @@ function switchToLogin() {
     let passwordTxt = document.getElementById("createPasswordInput").value;
     let confirmPasswordTxt = document.getElementById("confirmPasswordInput").value;
     if(passwordTxt != confirmPasswordTxt)
-      alert("PLEASE MAKESURE PASSWORDS MATCH!");
+      alert("PLEASE ENSURE PASSWORDS MATCH!");
     else if(usernameTxt != "" && passwordTxt != "")
       switchToRegister(usernameTxt, passwordTxt);
     else
       alert("PLEASE FILL OUT ALL FIELDS");
   });
 
-  // const div = document.createElement("div");
-  // div.className = "login";
-  // div.id = "tempLogin";
-  // const body = document.querySelector('body');
-  // body.append(div);
-  // var stringTmp ="<form class=\"username\"><input type=\"text\" id=\"usernameInput\" placeholder=\"Enter Username\"></form><form class=\"password\"><input type=\"text\" id=\"passwordInput\" placeholder=\"Enter Password\"></form><button class=\"login-btn\" id=\"login\">LOGIN</button><button id=\"register\" class=\"register-btn\">REGISTER</button><button id=\"admin\" class=\"admin-btn\">ADMIN LOGIN</button>";
-  // div.innerHTML = stringTmp;
-  // const loginBtn = document.getElementById("login");
-  // loginBtn.addEventListener('click', event => {
-  //   let usernameTxt = document.getElementById("usernameInput").value;
-  //   let passwordTxt = document.getElementById("passwordInput").value;   
-  //   if(usernameTxt != "" && passwordTxt != "")
-  //     attemptLogin(usernameTxt, passwordTxt, "getCustomerData");
-  // });
-  // const registerBtn = document.getElementById("register");
-  // registerBtn.addEventListener('click', event => {
-  //   switchToRegister();
-  // });
-  // const adminLoginBtn = document.getElementById("admin")
   adminLoginBtn.addEventListener('click', event => {
     let usernameTxt = document.getElementById("loginUsernameInput").value;
     let passwordTxt = document.getElementById("loginPasswordInput").value;
@@ -301,52 +373,109 @@ function switchToCart() {
   const form = document.createElement("form");
   form.className = "shoppingList";
   form.id = "cartDisplay";
-  var stringTmp ="<fieldset class=\"fieldset\"><legend>Shopping cart</legend><label class=\"name\"></label><label class=\"data\"></label></fieldset><div id=\"itemsTable\"><h2>Shopping List</h2><table id=\"list\"><tbody><tr><th>Item</th><th>Value</th></tr> <tr><td><i>NO ITEMS!</i></td> <td><i>NO ITEMS!</i></td></tr></tbody></table><label>* Delete all items<input type=\"button\" value=\"Clear\"></label></div>";
-  // const inputItem = document.createElement("input");
-  // inputItem.type = "text";
-  // inputItem.name = "data";
-  // const inputQuantity = document.createElement("input");
-  // inputQuantity.type = "text";
-  // inputQuantity.name = "data";
-  // const save = document.createElement("button");
-  // save.textContent = "Save";
-  // save.onclick = "SaveItem()";
-  // const update = document.createElement("button");
-  // update.textContent = "Update";
-  // update.onclick = "ModifyItem()";
-  // const remove = document.createElement("button");
-  // remove.textContent = "Delete";
-  // remove.onclick = "RemoveItem()";
+  var stringTmp ="<div id=\"itemsTable\"><h2>Shopping Cart</h2><table id=\"list\"><tbody id=\"cartBody\"></tbody></table><label>* Delete all items<input id = \"clearBtn\" type=\"button\" value=\"Clear\"></label></div>";
   body.append(form);
   form.innerHTML = stringTmp;
-  // item.append(inputItem);
-  // quantity.append(inputQuantity);
-  // fieldset.append(save);
-  // fieldset.append(update);
-  // fieldset.append(remove);
+  checkCart();
   doShowAll();
+  const div = document.createElement("div");
+  div.className = "totalScreen";
+  div.id = "totalDisplay";
+  var cart = JSON.parse(sessionStorage.getItem("cart"));
+  var items = cart.items;
+  var subTotal = 0.0;
+  var taxes = 0.0;
+  var total = 0.0;
+  for(var i = 0.0; i < items.length; i++) {
+    subTotal += parseFloat(parseFloat(items[i].pPrice * items[i].pInventory).toFixed(2));
+  }
+  taxes = subTotal * 0.0825;
+  total = subTotal + taxes + shippingCost;
+  var totalTemp = "<h1>Subtotal: $";
+  totalTemp += subTotal.toFixed(2);
+  totalTemp += "</h1><h1>Taxes: $";
+  totalTemp += taxes.toFixed(2);
+  totalTemp += "</h1><h1>Shipping and Handling Fees: $";
+  totalTemp += shippingCost.toFixed(2);
+  totalTemp += "</h1><h1>Total: $";
+  totalTemp += total.toFixed(2);
+  totalTemp += "</h1> <div class = \"horizontal-centering\"><button class = \"order-Btn\" id = \"orderBtn\">PLACE ORDER</btn></div>";
+  body.append(div);
+  div.innerHTML = totalTemp;
+  const orderBtn = document.getElementById("orderBtn");
+  orderBtn.addEventListener('click', event => {
+    getBillingInfo(subTotal, taxes, total);
+  });
 }
 
 //Function to switch screen to order information page
 function switchToOrders() {
   if(isLoggedIn()) {
-    const form = document.createElement("form");
-    form.className = "orderList";
-    form.id = "orderDisplay";
-    var stringTmp = "<fieldset class=\"fieldset\"><legend>Orders</legend></fieldset><div id=\"orderTable\"><h2>Order List</h2><table id=\"list\"></table><label>* Delete all items<input type=\"button\" value=\"Clear\"></label></div>";
-    body.append(form);
-    form.innerHTML = stringTmp;
+    const div = document.createElement("div");
+    div.className = "py-5";
+    div.id = "orderDisplay";
+    //var stringTmp = "<h2>Order List</h2><fieldset class=\"fieldset\" id = \"orderField\"><legend>Orders</legend><</fieldset><div id=\"orderTable\"><table id=\"list\"></table></div>";
+    var stringTmp = "<div class=\"containter\"><div class =\"\"><div class =\"row\"><div class=\"col-md-12\"><table class=\"table\"><thead><tr><th>Order Number</th><th>ITEMS</th><th>Quantity</th><th>Total</th><th>Date</th><th>Status</th></tr></thead><tbody id = \"tableBody\"><tr>";
+    body.append(div);
+    div.innerHTML = stringTmp;
+    var cID = sessionStorage.getItem("ID");
+    jQuery.ajax({
+      type: "POST",
+      url: 'SQLConnect.php',
+      dataType: 'JSON',
+      data: {functionname: 'getCustomerOrders', customerID: cID},
+  
+      success: function (obj) {
+        var temp = JSON.parse(obj);
+        //alert(obj);
+        //Will likely be an array so will iterate through getting values and updating areas.
+        var curOrderNum = 0;
+        var orderTmp = "";
+        var orderedItems = "";
+        var orderedQuant = "";
+        var orderedTotal = "";
+        var orderedDate = "";
+        var orderStatus = "";
+        for (var i = 0; i < temp.length; i++) {
+          var object = temp[i];
+          if(i == 0)
+            curOrderNum = object["orderID"];
+          if(curOrderNum == object["orderID"]) {
+            orderedItems += "<label class =\"testClass\">" + object["pName"] + "</label>";
+            orderedQuant += "<label class =\"testClass\">" + object["pQuantity"] + "</label>";
+            if(orderedTotal == ""){
+              orderedTotal += "<label class =\"testClass\">$" + object["total"] + "</label>";
+              orderedDate += "<label class =\"testClass\">" + object["orderDateTime"] + "</label>";
+              orderStatus += "<label class =\"testClass\">" + object["status"] + "</label>";
+            }
+          }
+          else{
+            orderTmp += "<td>" + curOrderNum + "</td> <td>" + orderedItems + '</td><td>' + orderedQuant + "</td><td>" + orderedTotal + "</td><td>" + orderedDate + "</td><td>" + orderStatus + "</td></tr>";
+            orderedItems = "<label class =\"testClass\">" + object["pName"] + "</label>";
+            orderedQuant = "<label class =\"testClass\">" + object["pQuantity"] + "</label>";
+            orderedTotal = "<label class =\"testClass\">$" + object["total"] + "</label>";
+            orderedDate = "<label class =\"testClass\">" + object["orderDateTime"] + "</label>";
+            orderStatus = "<label class =\"testClass\">" + object["status"] + "</label>";
+            curOrderNum = object["orderID"];
+          }
+          if(i == temp.length-1) {
+            orderTmp += "<td>" + curOrderNum + "</td><td>" + orderedItems + '</td><td>' + orderedQuant + "</td><td>" + orderedTotal + "</td><td>" + orderedDate + "</td><td>" + orderStatus + "</td></tr>";
+          }
+        }
+        const tableBody = document.getElementById("tableBody");
+        tableBody.insertAdjacentHTML('beforeend', orderTmp);
+      }
+    }); 
   }
   else {
     const h2 = document.createElement("h2");
     h2.textContent = "If you have an account please log in to view orders. Otherwise please enter email and order number below!";
     h2.id = "orderDisplay";
     body.append(h2);
+    //ADD OPTION TO DISPLAY ORDER WITH EMAIL AND ORDER NUMBER WITHOUT LOGGING IN
   }
 }
 
-//Function to switch to register page
-// function switchToRegister() {
 function switchToRegister(usernameTxt, passwordTxt) {
   const login = document.getElementById("tempLogin");
   if(login != null)
@@ -358,113 +487,14 @@ function switchToRegister(usernameTxt, passwordTxt) {
   if(verticalLine != null)
     verticalLine.remove();    
    
-  // var stringTmp = "<form class=\"username\"><input type=\"text\" id=\"usernameInput\" placeholder=\"Enter Username\"></form><form class=\"password\"><input type=\"text\" id=\"passwordInput\" placeholder=\"Enter Password\"></form><form class=\"pCheck\"><input type=\"text\" id=\"passwordCheck\" placeholder=\"Reenter Password\"></form><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
   var stringTmp = "<h2 class=\"createHeader\">Registration Almost Complete</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
-            // const pCheck = document.createElement("form");
-            // pCheck.className = "pCheck";
-            // const passwordCheck = document.createElement("input");
-            // passwordCheck.type = "text";
-            // passwordCheck.id = "passwordCheck";
-            // passwordCheck.placeholder = "Reenter Password";
-            // const fName = document.createElement("form");
-            // fName.className = "fName";
-            // const firstName = document.createElement("input");
-            // firstName.type = "text";
-            // firstName.id = "firstName";
-            // firstName.placeholder = "Enter First Name";
-            // const lName = document.createElement("form");
-            // lName.className = "lName";
-            // const lastName = document.createElement("input");
-            // lastName.type = "text";
-            // lastName.id = "lastName";
-            // lastName.placeholder = "Enter Last Name";
-            // const mAddress = document.createElement("form");
-            // mAddress.className = "mAddress";
-            // const mailingAddress = document.createElement("input");
-            // mailingAddress.type = "text";
-            // mailingAddress.id = "mailingAddress";
-            // mailingAddress.placeholder = "Enter Mailing Address";
-            // const mCity = document.createElement("form");
-            // mCity.className = "mCity";
-            // const mailingCity = document.createElement("input");
-            // mailingCity.type = "text";
-            // mailingCity.id = "mailingCity";
-            // mailingCity.placeholder = "Enter Mailing City";
-            // const mState = document.createElement("form");
-            // mState.className = "mState";
-            // const mailingState = document.createElement("input");
-            // mailingState.type = "text";
-            // mailingState.id = "mailingState";
-            // mailingState.placeholder = "Enter Mailing State";
-            // const mZipCode = document.createElement("form");
-            // mZipCode.className = "mZipCode";
-            // const mailingZipCode = document.createElement("input");
-            // mailingZipCode.type = "text";
-            // mailingZipCode.id = "mailingZipCode";
-            // mailingZipCode.placeholder = "Enter Mailing Zip Code";
-            // const bAddress = document.createElement("form");
-            // bAddress.className = "bAddress";
-            // const billingAddress = document.createElement("input");
-            // billingAddress.type = "text";
-            // billingAddress.id = "billingAddress";
-            // billingAddress.placeholder = "Enter Billing Address";
-            // const pNumber = document.createElement("form");
-            // pNumber.className = "pNumber";
-            // const phoneNumber = document.createElement("input");
-            // phoneNumber.type = "text";
-            // phoneNumber.id = "phoneNumber";
-            // phoneNumber.placeholder = "Enter Phone Number";
-            // const eMail = document.createElement("form");
-            // eMail.className = "eMail";
-            // const email = document.createElement("input");
-            // email.type = "text";
-            // email.id = "email";
-            // email.placeholder = "Enter Email";
-
   const div = document.getElementById("tempRegister");
   div.innerHTML = stringTmp;
   const register = document.getElementById("register");
-            // register.id = "register";
-            // register.textContent = "REGISTER";
-            // register.className = "register-btn";
 
-
-  // div.append(pCheck);
-  // pCheck.append(passwordCheck);
   
-  // div.append(fName);
-  // fName.append(firstName);
-
-  // div.append(lName);
-  // lName.append(lastName);
-  
-  // div.append(mAddress);
-  // mAddress.append(mailingAddress);
-  
-  // div.append(mCity);
-  // mCity.append(mailingCity);
-  
-  // div.append(mState);
-  // mState.append(mailingState);
-  
-  // div.append(mZipCode);
-  // mZipCode.append(mailingZipCode);
-  
-  // div.append(bAddress);
-  // bAddress.append(billingAddress);
-  
-  // div.append(pNumber);
-  // pNumber.append(phoneNumber);
-  
-  // div.append(eMail);
-  // eMail.append(email);
-
-  // div.append(register);
 
   register.addEventListener('click', event => {
-    // let usernameTxt = document.getElementById("usernameInput").value;
-    // let passwordTxt = document.getElementById("passwordInput").value;
-    // let passwordCheckTxt = document.getElementById("passwordCheck").value;
     let firstNameTxt = document.getElementById("firstName").value;
     let lastNameTxt = document.getElementById("lastName").value;
     let mailingAddressTxt = document.getElementById("mailingAddress").value;
@@ -474,14 +504,11 @@ function switchToRegister(usernameTxt, passwordTxt) {
     let billingAddressTxt = document.getElementById("billingAddress").value;
     let phoneNumberTxt = document.getElementById("phoneNumber").value;
     let emailTxt = document.getElementById("email").value;
-    // if(usernameTxt == "" || passwordTxt == "" || passwordCheckTxt == "" || firstNameTxt == "" || lastNameTxt == "" || mailingAddressTxt == "" || mailingCityTxt == "" || mailingStateTxt == "" || mailingZipCodeTxt == "" || billingAddressTxt == "" || phoneNumberTxt == "" || emailTxt == "")
+    
     if(firstNameTxt == "" || lastNameTxt == "" || mailingAddressTxt == "" || mailingCityTxt == "" || mailingStateTxt == "" || mailingZipCodeTxt == "" || billingAddressTxt == "" || phoneNumberTxt == "" || emailTxt == "")
     {
       alert("PLEASE FILL OUT ALL FIELDS");
     }
-    // else if(passwordTxt != passwordCheckTxt) {
-    //   alert("PLEASE MAKESURE PASSWORDS MATCH!");
-    // }
     else
     {
       const parsed = parseInt(mailingZipCodeTxt);
@@ -492,7 +519,7 @@ function switchToRegister(usernameTxt, passwordTxt) {
         registerNewUser(usernameTxt, passwordTxt, firstNameTxt, lastNameTxt, mailingAddressTxt, mailingCityTxt, mailingStateTxt, mailingZipCodeTxt, billingAddressTxt, phoneNumberTxt, emailTxt);
         clearPage();
       }
-      //alert("Registered!");
+      alert("Registered!");
     }
   });
 }
@@ -508,11 +535,11 @@ function registerNewUser(username, password, firstName, lastName, mailingAddress
 
     success: function (obj) {
       //If there is an error value then the login was unsucceful we can display more information if wanted.
-      if (obj != "\"added\"") {
-        alert(obj);
+      if (obj == "\"error\"") {
+        alert("ERROR CREATING ACCOUNT");
       }
       else {
-        body.classList.add("logged-in");
+        sessionStorage.setItem("ID", obj.substring(1, obj.length-1));
         console.log("SUCCESS!");
         //TODO: Should probably add element or maybe another class to body to keep track of username or userID
       }
@@ -544,7 +571,7 @@ function attemptLogin(username, password, functionName) {
         txt.textContent = "LOGGED IN SUCCESSFULLY";
         body.append(txt);
         //This will add the logged-in class to the body which will allow the page to know user is logged in
-        body.classList.add("logged-in");
+        sessionStorage.setItem("ID", temp.cID);
         //TODO: Should probably add element or maybe another class to body to keep track of username or userID
         if(functionName == "attemptAdminLogin") 
         {
@@ -556,45 +583,201 @@ function attemptLogin(username, password, functionName) {
 }
 
 function doShowAll() {
-  var list = "<tr><th>Item</th><th>Value</th></tr>\n";
-  var i = 0;
-  for(i = 0; i <= localStorage.length-i; i++) {
-    if(localStorage.key(i) == "item") {
-      list += "<tr><td>" + key + "</td>\n<td>" + localStorage.getItem(key) + "</td></tr>\n";
-    }
+  checkCart();
+  var list = "<tr><th>Item</th><th>Value</th><th>Quantity</th><th>REMOVE</th></tr>\n";
+  var cart = JSON.parse(sessionStorage.getItem("cart"));
+  var items = cart.items;
+  var tableCartBody = document.getElementById("cartBody");
+  for(var i = 0; i < items.length; i++) {
+    var item = items[i];
+    list += "<tr><td>" + item.pName + "</td><td>" + item.pPrice + "</td><td id = \"quantity" + item.pID + "\">" + item.pInventory +"</td><td><button id = " + item.pID + " type = \"button\">Remove item</button></tr>";
   }
-  if(list == "<tr><th>Item</th><th>Value</th></tr>\n") {
-    list += "<tr><td><i>NO ITEMS!</i></td>\n<td><i>NO ITEMS!</i></td></tr>\n";
+  if(list == "<tr><th>Item</th><th>Value</th></tr>") {
+    list += "<tr><td><i>NO ITEMS!</i></td><td><i>NO ITEMS!</i></td></tr>";
   }
-  document.getElementById('list').innerHTML = list;
-}
-
-function SaveItem() {
-  var name = "item";
-  var data = document.forms.ShoppingList.data.value;
-  localStorage.setItem(name, data);
-  doShowAll();
-}
-
-function ModifyItem() {
-  var name1 = document.forms.ShoppingList.name.value;
-  var data1 = document.forms.ShoppingList.data.value;
-
-  if(localStorage.getItem(name1) != null) {
-    localStorage.setItem(name1, data1);
-    document.forms.ShoppingList.data.value = localStorage.getItem(name1);
+  tableCartBody.innerHTML = list;
+  for(var i = 0; i < items.length; i++) {
+    var item = items[i];
+    const rmvBtn = document.getElementById(item.pID);
+    rmvBtn.addEventListener('click', event => {
+      for(var j = 0; j < items.length; j++)
+      {
+        if(items[j].pID == rmvBtn.id.toString())
+        {
+          removeFromCart(items[j]);
+        }
+      }
+      //removeFromCart(items);
+      doShowAll();
+    });
   }
-
-  doShowAll();
-}
-
-function RemoveItem() {
-  var name = document.forms.ShoppingList.name.value;
-  document.forms.ShoppingList.data.value = localStorage.removeItem(name);
-  doShowAll();
+  var clearBtn = document.getElementById("clearBtn");
+  clearBtn.addEventListener('click', event => {
+    ClearAll();
+  })
 }
 
 function ClearAll() {
-  localStorage.clear();
+  sessionStorage.clear();
   doShowAll();
 }
+
+function goToAdminScreen() {
+  //BackEnd add stuff for altering 
+}
+
+function addToCart(object) {
+  var cart = sessionStorage.getItem("cart");
+  var cartObject = JSON.parse(cart);
+  var cartCopy = cartObject;
+  var items = cartCopy.items;
+  for( var i = 0; i < items.length; ++i ) {
+    var item = items[i];
+    if(object["pID"] == item.pID)
+    {
+      item.pInventory += 1;
+      alert("UPDATED QUANTITY: " + item.pInventory);
+      sessionStorage.setItem("cart", JSON.stringify(cartCopy));
+      return;
+    }
+  }
+  object["pInventory"] = 1;
+  items.push(object);
+  sessionStorage.setItem("cart", JSON.stringify(cartCopy));
+  alert("ADDED TO CART!");
+}
+
+function removeFromCart(object) {
+  var cart = sessionStorage.getItem("cart");
+  var cartObject = JSON.parse(cart);
+  var itemList = cartObject.items;
+  var newCart = {};
+  newCart.items = [];
+  for( var i = 0; i < itemList.length; ++i ) {
+    var item = itemList[i];
+    if(object["pID"] == item.pID)
+    {
+      item.pInventory -= 1;
+      //alert("UPDATED QUANTITY: " + item.pInventory);
+      //if(item.pInventory <= 0) {
+        //items.remove
+      //}
+    }
+    if(item.pInventory > 0)
+      newCart.items.push(item);
+  }
+  sessionStorage.setItem("cart", JSON.stringify(newCart));
+  alert("REMOVED ITEM!");
+}
+
+function checkCart() {
+  if(sessionStorage.getItem("cart") == null)
+  {
+    var c = {};
+    c.items = [];
+    sessionStorage.setItem("cart", JSON.stringify(c));
+  }
+}
+
+function placeOrder(subTotal, taxes, total) {
+  var orderNum;
+  var cID;
+  if(sessionStorage.getItem("ID") == null) {
+    //TODO: ADD METHOD TO ALLOW INFORMATION TO BE INPUT FOR GUESTS
+    return;
+  }
+  else {
+    cID = parseInt(sessionStorage.getItem("ID"));
+  }
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'JSON',
+    data: {functionname: 'getLastOrder'},
+
+    success: function (obj) {
+      var temp = JSON.parse(obj);
+      if (temp.error) {
+        orderNum = 1;
+      }
+      else {
+        orderNum = parseInt(temp.orderNum) + 1;
+      }
+      //alert(orderNum);
+      var currentDate = new Date();
+      var orderDateTime = currentDate.getFullYear() + "-" + (currentDate.getMonth()+1)  + "-" + currentDate.getDate() + " " + currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
+      //alert(orderDateTime);
+      var cart = JSON.parse(sessionStorage.getItem("cart"));
+      var items = cart.items;
+      jQuery.ajax({
+        type: "POST",
+        url: 'SQLConnect.php',
+        dataType: 'text',
+        data: {functionname: 'placeOrder', orderNm: orderNum, dateTime: orderDateTime, customerID: cID, sub: subTotal.toFixed(2), tax: taxes.toFixed(2), ship: shippingCost.toFixed(2), totl: total.toFixed(2)},
+
+        success: function (obj) {
+          if (obj != "\"Placed\"") {
+            alert(obj);
+          }
+          else {
+            //alert("ORDER BEING PLACED!");
+            for(var i = 0; i < items.length; i++) {
+              var pID = items[i].pID;
+              var pQuantity = items[i].pInventory;
+              jQuery.ajax({
+                type: "POST",
+                url: 'SQLConnect.php',
+                dataType: 'text',
+                data: {functionname: 'orderProducts', orderNm: orderNum, productID: pID, productQuantity: pQuantity},
+        
+                success: function (obj) {
+                  if (obj != "\"Placed\"") {
+                    alert(obj);
+                  }
+                }
+              });
+            }
+            sessionStorage.removeItem("cart");
+            alert("ORDER PLACED! YOUR ORDER NUMBER IS: " + orderNum);
+            clearPage();
+            switchToOrders();
+          }
+        }
+      });
+    }
+  });
+}
+
+function getBillingInfo(subTotal, taxes, total) {
+  // const label = document.createElement("label");
+  // label.textContent = "BILLING INFORMATION: "
+  clearPage();
+  const div = document.createElement("div");
+  div.id = "billing";
+  if(sessionStorage.getItem("ID") != null) {
+    div.innerHTML = "<label>BILLING INFORMATION:</label><form class=\"billingName\" id=\"billName\"><input type=\"text\" id=\"billNameInput\" placeholder=\"Full name (First and Last name)\"></form> <form class=\"streetAddress\" id=\"streetAddress\"><input type=\"text\" id=\"streetAddressInput\" placeholder=\"Street address or P.O. Box\"></form> <form class=\"billingCity\" id=\"billCity\"><input type=\"text\" id=\"billCityInput\" placeholder=\"City\"></form> <form class=\"billingState\" id=\"billState\"><input type=\"text\" id=\"billStateInput\" placeholder=\"State\"></form> <form class=\"billingZipCode\" id=\"billZipCode\"><input type=\"text\" id=\"billZipCodeInput\" placeholder=\"ZIP Code\"></form> <form id=\"cardNum\"><input type=\"text\" id=\"cardNumInput\" placeholder=\"Card number\"></form> <form id=\"cardName\"><input type=\"text\" id=\"cardNameInput\" placeholder=\"Name on card\"></form> <form id=\"cardExpDate\"><input type=\"text\" id=\"cardExpDateInput\" placeholder=\"Expiration date (as mm/yyyy)\"></form> <button id = \"placeOrderBtn\">PLACE ORDER</btn>";
+    const body = document.querySelector('body');
+    //body.append(label);
+    body.append(div);
+    const orderBtn = document.getElementById("placeOrderBtn");
+    orderBtn.addEventListener('click', event => {
+      var billNameInput = document.getElementById("billNameInput").value;
+      var streetAddressInput = document.getElementById("streetAddressInput").value;
+      var billCityInput = document.getElementById("billCityInput").value;
+      var billStateInput = document.getElementById("billStateInput").value;
+      var billZipCodeInput = document.getElementById("billZipCodeInput").value;
+      var cardNum = document.getElementById("cardNumInput").value;
+      var cardName = document.getElementById("cardNameInput").value;
+      var cardExpDate = document.getElementById("cardExpDateInput").value;
+      if(billNameInput == "" || streetAddressInput == "" || billCityInput == "" || billStateInput == "" || billZipCodeInput == "" || cardNum == "" || cardName == "" || cardExpDate == "") {
+        alert("PLEASE ENSURE ALL FIELDS ARE FILLED OUT!")
+      }
+      else
+        placeOrder(subTotal, taxes, total);
+    });
+  }
+  else {
+    //TODO: ALLOW FOR PLACING ORDER AS GUEST IF WE WANT
+  }
+}
+ 
