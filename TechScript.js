@@ -1,6 +1,12 @@
 "use strict"; //Forces strict JavaScript which will make it easier to catch bugs
 
 var shippingCost = 10.00;
+var subTotal = 0.0;
+var taxes = 0.0;
+var total = 0.0;
+var newSubTotal = 0.0;
+var newTaxes = 0.0;
+var newTotal = 0.0;
 // This will handle when the search button is pressed.
 let searchBtn = document.getElementById("search");
 searchBtn.addEventListener('click', event => {
@@ -75,9 +81,9 @@ function clearPage() {
   const productInfo = document.getElementById("productInfo");
   if(productInfo != null)
     productInfo.remove();
-  const total = document.getElementById("totalDisplay");
-  if(total != null)
-    total.remove();
+  const totalD = document.getElementById("totalDisplay");
+  if(totalD != null)
+    totalD.remove();
   const billing = document.getElementById("billing");
   if(billing != null)
     billing.remove();
@@ -373,7 +379,7 @@ function switchToCart() {
   const form = document.createElement("form");
   form.className = "shoppingList";
   form.id = "cartDisplay";
-  var stringTmp ="<div id=\"itemsTable\"><h2>Shopping Cart</h2><table id=\"list\"><tbody id=\"cartBody\"></tbody></table><label>* Delete all items<input id = \"clearBtn\" type=\"button\" value=\"Clear\"></label></div>";
+  var stringTmp ="<div id=\"itemsTable\"><h2>Shopping Cart</h2><table id=\"list\"><tbody id=\"cartBody\"></tbody></table><label>* Delete all items<input class = \"clearBtn\"id = \"clearBtn\" type=\"button\" value=\"Clear\"></label></div>";
   body.append(form);
   form.innerHTML = stringTmp;
   checkCart();
@@ -383,28 +389,33 @@ function switchToCart() {
   div.id = "totalDisplay";
   var cart = JSON.parse(sessionStorage.getItem("cart"));
   var items = cart.items;
-  var subTotal = 0.0;
-  var taxes = 0.0;
-  var total = 0.0;
+  subTotal = 0;
   for(var i = 0.0; i < items.length; i++) {
     subTotal += parseFloat(parseFloat(items[i].pPrice * items[i].pInventory).toFixed(2));
   }
   taxes = subTotal * 0.0825;
   total = subTotal + taxes + shippingCost;
-  var totalTemp = "<h1>Subtotal: $";
+  var totalTemp = "<form class = \"discount-Code-Form\" id=\"discountCode\"><input class = \"discount-Code\"type=\"text\" id=\"discountCodeInput\" placeholder=\"Enter Discount Code\"></form><btn class = \"discountBtn\" id =\"applyCode\">Apply Code</btn><h1 id = \"subTotalTxt\" class = \"totalScreenTxt\">Subtotal: $";
   totalTemp += subTotal.toFixed(2);
-  totalTemp += "</h1><h1>Taxes: $";
+  totalTemp += "</h1><h1 id = \"taxesTxt\" class = \"totalScreenTxt\">Taxes: $";
   totalTemp += taxes.toFixed(2);
-  totalTemp += "</h1><h1>Shipping and Handling Fees: $";
+  totalTemp += "</h1><h1 class = \"totalScreenTxt\">Shipping and Handling Fees: $";
   totalTemp += shippingCost.toFixed(2);
-  totalTemp += "</h1><h1>Total: $";
+  totalTemp += "</h1><h1 id = \"totalTxt\" class = \"totalScreenTxt\">Total: $";
   totalTemp += total.toFixed(2);
   totalTemp += "</h1> <div class = \"horizontal-centering\"><button class = \"order-Btn\" id = \"orderBtn\">PLACE ORDER</btn></div>";
   body.append(div);
   div.innerHTML = totalTemp;
   const orderBtn = document.getElementById("orderBtn");
   orderBtn.addEventListener('click', event => {
-    getBillingInfo(subTotal, taxes, total);
+    getBillingInfo();
+  });
+  const discountBtn = document.getElementById("applyCode");
+  discountBtn.addEventListener('click', event => {
+    var discountInput = document.getElementById("discountCodeInput").value;
+    if(discountInput != "") {
+      checkAndApplyCode(discountInput);
+    }
   });
 }
 
@@ -590,7 +601,7 @@ function doShowAll() {
   var tableCartBody = document.getElementById("cartBody");
   for(var i = 0; i < items.length; i++) {
     var item = items[i];
-    list += "<tr><td>" + item.pName + "</td><td>" + item.pPrice + "</td><td id = \"quantity" + item.pID + "\">" + item.pInventory +"</td><td><button id = " + item.pID + " type = \"button\">Remove item</button></tr>";
+    list += "<tr><td>" + item.pName + "</td><td>" + item.pPrice + "</td><td id = \"quantity" + item.pID + "\">" + item.pInventory +"</td><td><button class = \"removeItem\" id = " + item.pID + " type = \"button\">Remove item</button></tr>";
   }
   if(list == "<tr><th>Item</th><th>Value</th></tr>") {
     list += "<tr><td><i>NO ITEMS!</i></td><td><i>NO ITEMS!</i></td></tr>";
@@ -679,7 +690,7 @@ function checkCart() {
   }
 }
 
-function placeOrder(subTotal, taxes, total) {
+function placeOrder() {
   var orderNum;
   var cID;
   if(sessionStorage.getItem("ID") == null) {
@@ -748,13 +759,18 @@ function placeOrder(subTotal, taxes, total) {
   });
 }
 
-function getBillingInfo(subTotal, taxes, total) {
+function getBillingInfo() {
   // const label = document.createElement("label");
   // label.textContent = "BILLING INFORMATION: "
-  clearPage();
+  if(newTotal != 0.0) {
+    subTotal = newSubTotal;
+    taxes = newTaxes;
+    total = newTotal;
+  }
   const div = document.createElement("div");
   div.id = "billing";
   if(sessionStorage.getItem("ID") != null) {
+    clearPage();
     div.innerHTML = "<label>BILLING INFORMATION:</label><form class=\"billingName\" id=\"billName\"><input type=\"text\" id=\"billNameInput\" placeholder=\"Full name (First and Last name)\"></form> <form class=\"streetAddress\" id=\"streetAddress\"><input type=\"text\" id=\"streetAddressInput\" placeholder=\"Street address or P.O. Box\"></form> <form class=\"billingCity\" id=\"billCity\"><input type=\"text\" id=\"billCityInput\" placeholder=\"City\"></form> <form class=\"billingState\" id=\"billState\"><input type=\"text\" id=\"billStateInput\" placeholder=\"State\"></form> <form class=\"billingZipCode\" id=\"billZipCode\"><input type=\"text\" id=\"billZipCodeInput\" placeholder=\"ZIP Code\"></form> <form id=\"cardNum\"><input type=\"text\" id=\"cardNumInput\" placeholder=\"Card number\"></form> <form id=\"cardName\"><input type=\"text\" id=\"cardNameInput\" placeholder=\"Name on card\"></form> <form id=\"cardExpDate\"><input type=\"text\" id=\"cardExpDateInput\" placeholder=\"Expiration date (as mm/yyyy)\"></form> <button id = \"placeOrderBtn\">PLACE ORDER</btn>";
     const body = document.querySelector('body');
     //body.append(label);
@@ -773,11 +789,53 @@ function getBillingInfo(subTotal, taxes, total) {
         alert("PLEASE ENSURE ALL FIELDS ARE FILLED OUT!")
       }
       else
-        placeOrder(subTotal, taxes, total);
+        placeOrder();
     });
   }
   else {
+    alert("PLEASE LOGIN TO PLACE ORDER!");
     //TODO: ALLOW FOR PLACING ORDER AS GUEST IF WE WANT
   }
 }
- 
+
+function checkAndApplyCode(discountCode) {
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'text',
+    data: {functionname: 'checkCode', code: discountCode},
+
+    success: function (obj) {
+      if (obj == "\"Invalid\"") {
+        alert(discountCode + " is not a valid discount code!");
+      }
+      else {
+        if(obj[1] == "$")
+        {
+          //alert(obj.substring(2,obj.length-1));
+          newSubTotal = subTotal - parseInt(obj.substring(2, obj.length-1));
+          newTaxes = newSubTotal * 0.0825;
+          newTotal = newSubTotal + newTaxes + shippingCost;
+          //alert("SUBTOTAL: " + newSubTotal.toFixed(2) + " TAXES: " + newTaxes.toFixed(2) + " TOTAL: " + newTotal.toFixed(2));
+        }
+        else if(obj[1] == "%")
+        {
+          newSubTotal = subTotal * (1.0 - (parseFloat(obj.substring(2, obj.length-1)) / 100));
+          newTaxes = newSubTotal * 0.0825;
+          newTotal = newSubTotal + newTaxes + shippingCost;
+          //alert("SUBTOTAL: " + newSubTotal.toFixed(2) + " TAXES: " + newTaxes.toFixed(2) + " TOTAL: " + newTotal.toFixed(2));
+        }
+        updatePrices();
+      }
+    }
+  });
+}
+
+function updatePrices() {
+  const subTotalTxt = document.getElementById("subTotalTxt");
+  const taxesTxt = document.getElementById("taxesTxt");
+  const totalTxt = document.getElementById("totalTxt");
+  subTotalTxt.textContent = "Subtotal: $" + newSubTotal.toFixed(2);
+  taxesTxt.textContent = "Taxes: $" + newTaxes.toFixed(2);
+  totalTxt.textContent = "Total: $" + newTotal.toFixed(2);
+}

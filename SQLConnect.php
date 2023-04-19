@@ -39,6 +39,9 @@
             case 'getCustomerOrders':
                 $aResult = getCustomerOrders($_POST['customerID']);
                 break;
+            case 'checkCode':
+                $aResult = checkCode($_POST['code']);
+                break;
             default:
             //    $aResult['error'] = 'Not found function '.$_POST['functionname'].'!';
                break;
@@ -346,5 +349,35 @@
 
         //Returns the resulting rows
         return json_encode($rows);
+    }
+
+    function checkCode($discountCode){
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Conncetion failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $sql = "SELECT discount FROM discountCodes WHERE code = '";
+        $sql .= $discountCode;
+        $sql .= "' AND valid = 1;";
+
+        $result = mysqli_query($conn, $sql);
+
+        if (mysqli_num_rows($result)==0) {
+            $rows = array("error" => true);
+            return "Invalid";
+        }
+        
+        //Otherwise will get the matching row
+        $row = mysqli_fetch_column($result);
+        
+        //Closes database connection
+        $conn -> close();
+
+        return $row;
     }
 ?>

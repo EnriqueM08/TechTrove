@@ -364,8 +364,8 @@ table, th, td {
   margin: 0;
   position: absolute;
   left: 50%;
-  -ms-transform: translateX(-50%);
   transform: translateX(-50%);
+  bottom: -25%;
 }
 
 .order-Btn {
@@ -395,4 +395,88 @@ table, th, td {
   padding-block: 10px;
   width: 90px;
   display: block;
+}
+
+.discount-Code {
+  background: transparent;
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-size: 20px;
+  color: black;
+  width: 900px;
+}
+
+.discount-Code::placeholder {
+  color: black;
+}
+
+.discount-Code-Form {
+  border: none;
+  border-bottom: 1px solid #3a3a3a;
+  border-radius: 3px;
+  margin-left: 100px;
+  margin-top: 25px;
+  outline: none;
+  padding: 0px 0px 5px 5px;
+  background-color: azure;
+}
+
+.discountBtn {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  margin-top: 15px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.totalScreen {
+  display: grid;
+  position: relative;
+  height: auto;
+  min-height: 100%;
+  justify-items: center;
+}
+
+.totalScreenTxt {
+  font-size: 20px;
+}
+
+.clearBtn {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  margin-top: 15px;
+  text-align: center;
+  margin-left: 10px;
+  margin-right: auto;
+}
+
+.removeItem {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
