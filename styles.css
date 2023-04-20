@@ -178,6 +178,39 @@ h1 {
   align-items: center; 
 }
 
+/* Controls the style of the left product info div, contains the product name, category, and image */
+.pInfoLeft {
+  align-self: flex-start;
+  display: inline-block; 
+  justify-items: center;
+  margin-left: 200px;
+}
+
+/* Controls the style of the right product info div, contains the product description, price, number of that product in stock, and the add to cart button */
+.pInfoRight {
+  align-self: flex-start;
+  display: inline-block;
+  justify-items: left;
+  margin-left: 900px;
+}
+
+/* Controls the style of the product image on the product page */
+.productImg{
+  display: inline-block;
+  position: absolute;
+  margin-top: 30px;
+  height: 500px;
+  width: 600px;
+}
+
+/* Controls the style of the name of the product on the product page */
+.productName{
+  color:orange;
+  font-family:georgia,garamond,serif;
+  font-size: 50px;
+  text-align: center;
+}
+
 /* Controls the style of the login forms such as username and password */
 /* .login form {
   border: none;
@@ -319,6 +352,19 @@ h1 {
   cursor: pointer;
   outline: none;
   margin-top: 15px;
+}
+
+/* Controls the style of the add to cart button */
+.addCart-btn {
+  width: 200px;
+  padding: 7px;
+  border: 1px solid black;
+  border-radius: 5px;
+  color: #1434A4;
+  font-weight: bold;
+  background-color: orange;
+  cursor: pointer;
+  outline: none;
 }
 
 /* TEMP FOR CHANGING THE STYLE OF THE TEMPORARY MESSAGE THAT SAYS WE ARE LOGGED IN */
