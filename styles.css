@@ -60,7 +60,6 @@ h1 {
 /* Use for changing color when hovering over button */
 .btn-group button:hover {
   background-color: RoyalBlue;
-  color: orange;
 }
 
 /* Used to change the directory div style */
@@ -279,12 +278,6 @@ h1 {
   outline: none;
 }
 
-/*changes colors of login button on hover*/
-.login-btn:hover {
-	background-color: RoyalBlue;
-	color: orange;
-}
-
 /* Controls the style of the create account button*/
 .create-btn {
   position: relative;
@@ -298,12 +291,6 @@ h1 {
   background-color: orange;
   cursor: pointer;
   outline: none;
-}
-
-/*changes colors of create account button on hover*/
-.create-btn:hover {
-	background-color: RoyalBlue;
-	color: orange;
 }
 
 /* Controls the style of the register button */
@@ -320,12 +307,6 @@ h1 {
   margin-top: 20px;
 }
 
-/*changes colors of register button on hover*/
-.register-btn:hover {
-	background-color: RoyalBlue;
-	color: orange;
-}
-
 /* Controls the style of the admin button */
 .admin-btn {
   width: 200px;
@@ -338,12 +319,6 @@ h1 {
   cursor: pointer;
   outline: none;
   margin-top: 15px;
-}
-
-/*changes colors of admin button on hover*/
-.admin-btn:hover {
-	background-color: RoyalBlue;
-	color: orange;
 }
 
 /* TEMP FOR CHANGING THE STYLE OF THE TEMPORARY MESSAGE THAT SAYS WE ARE LOGGED IN */
@@ -369,11 +344,139 @@ table, th, td {
   font-size: 20px;  
   padding-inline: 200px;
   /* margin-left: 15px; */
-  }
+}
 
-/* styling for clear button*/
-.clrBtn {
-	background-color: orange;
-	border: 1px solid black;
-	margin-left: 10px;
+.product {
+  display: flex;
+  border: 1px solid black;
+  background: gray
+}
+
+.left {
+  padding: 20px;
+}
+
+.right {
+  padding: 20px;
+}
+
+.horizontal-centering {
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -25%;
+}
+
+.order-Btn {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  margin-top: 15px;
+  margin-bottom: 50px;
+}
+
+.fieldset {
+  display:grid;
+}
+
+.orderDisplay {
+  padding-top: 20px;
+  display: grid;
+}
+
+.testClass {
+  padding-block: 10px;
+  width: 90px;
+  display: block;
+}
+
+.discount-Code {
+  background: transparent;
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-size: 20px;
+  color: black;
+  width: 900px;
+}
+
+.discount-Code::placeholder {
+  color: black;
+}
+
+.discount-Code-Form {
+  border: none;
+  border-bottom: 1px solid #3a3a3a;
+  border-radius: 3px;
+  margin-left: 100px;
+  margin-top: 25px;
+  outline: none;
+  padding: 0px 0px 5px 5px;
+  background-color: azure;
+}
+
+.discountBtn {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  margin-top: 15px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.totalScreen {
+  display: grid;
+  position: relative;
+  height: auto;
+  min-height: 100%;
+  justify-items: center;
+}
+
+.totalScreenTxt {
+  font-size: 20px;
+}
+
+.clearBtn {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  margin-top: 15px;
+  text-align: center;
+  margin-left: 10px;
+  margin-right: auto;
+}
+
+.removeItem {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
