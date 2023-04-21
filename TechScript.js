@@ -89,6 +89,9 @@ function clearPage() {
   const billing = document.getElementById("billing");
   if(billing != null)
     billing.remove();
+  const profileInfo = document.getElementById("logOutBtn");
+  if(profileInfo != null)
+    profileInfo.remove();
 }
 
 function clearResults() {
@@ -136,10 +139,11 @@ function searchProducts(query, filterName) {
       {
         stringTmp += "<div class=\"filter-group\"><label>SORT BY: </label> <select class=\"form-control\" id =\"filter\"><option>Default</option><option>Price: Low to High</option><option>Price: High to Low</option><option>Alphabetical</option><option>Newest Arrivals</option><option>Availability</option></select></div>";
       }
+  
         //Will likely be an array so will iterate through getting values and updating areas.
       for (var i = 0; i < temp.length; i++) {
         var object = temp[i];
-        stringTmp += "<div class = \"product\"> <div class = \"left\"> <button id =\"";
+        stringTmp += "<div id = \"pTemp\" class = \"product\"> <div class = \"left\"> <button id =\"";
         stringTmp += object["pID"];
         stringTmp += "\"><img src = \"";
         stringTmp += object["pImagePath"];
@@ -168,18 +172,25 @@ function searchProducts(query, filterName) {
           switchToDetailScreen(selected["pName"], selected["pDescription"], selected["pImagePath"], selected["pPrice"], selected["pCategory"], selected["pInventory"], selected);
         });
       }
-      let filterMenu = document.getElementById("filter");
-      filterMenu.addEventListener("change", function(e){
-        e.stopImmediatePropagation();
-        let filterName = filterMenu.value;
-        clearResults();
-        searchProducts(query, filterName);
-      });
+      const tempP = document.getElementById("pTemp");
+      if(tempP == null)
+      {
+        div.innerHTML = "<label class = \"noResults\">No results found please search again!<lable>";
+      }
+      else{
+        let filterMenu = document.getElementById("filter");
+        filterMenu.addEventListener("change", function(e){
+          e.stopImmediatePropagation();
+          let filterName = filterMenu.value;
+          clearResults();
+          searchProducts(query, filterName);
+        });
+      }
      },
      error: function(xhr, status, error) {
-       //alert(xhr);
+       alert(xhr);
      }
-  }); 
+  });
 }
 
 function switchToDetailScreen(productName, productDescription, productImage, productPrice, productCategory, productInventory, product) {
@@ -257,8 +268,18 @@ function switchToProfile() {
   const txt = document.createElement("h2");
   txt.className = "log-txt";
   txt.id = "log";
-  txt.textContent = "ALREADY LOGGED IN!";
+  txt.textContent = "NEED TO DO";
+  const logoutBtn = document.createElement("btn");
+  logoutBtn.className = "logout-Btn";
+  logoutBtn.id = "logOutBtn";
+  logoutBtn.textContent = "LOG OUT";
+  logoutBtn.addEventListener('click', event => {
+    logoutUser();
+    clearPage();
+    switchToLogin();
+  });
   body.append(txt);
+  body.append(logoutBtn);
   return;
 }
 
@@ -427,7 +448,10 @@ function switchToCart() {
   totalTemp += "</h1><h1 class = \"totalScreenTxt\">Shipping and Handling Fees: $";
   totalTemp += shippingCost.toFixed(2);
   totalTemp += "</h1><h1 id = \"totalTxt\" class = \"totalScreenTxt\">Total: $";
-  totalTemp += total.toFixed(2);
+  if(subTotal != 0.0)
+    totalTemp += total.toFixed(2);
+  else 
+    totalTemp += subTotal.toFixed(2);
   totalTemp += "</h1> <div class = \"horizontal-centering\"><button class = \"order-Btn\" id = \"orderBtn\">PLACE ORDER</btn></div>";
   body.append(div);
   div.innerHTML = totalTemp;
@@ -438,7 +462,7 @@ function switchToCart() {
   const discountBtn = document.getElementById("applyCode");
   discountBtn.addEventListener('click', event => {
     var discountInput = document.getElementById("discountCodeInput").value;
-    if(discountInput != "") {
+    if(discountInput != "" && subTotal != 0) {
       checkAndApplyCode(discountInput);
     }
   });
@@ -654,7 +678,8 @@ function doShowAll() {
 }
 
 function ClearAll() {
-  sessionStorage.clear();
+  sessionStorage.removeItem("cart");
+  checkCart();
   doShowAll();
 }
 
@@ -858,9 +883,21 @@ function checkAndApplyCode(discountCode) {
 
 function updatePrices() {
   const subTotalTxt = document.getElementById("subTotalTxt");
+  const discountTxt = document.getElementById("discountTxt");
   const taxesTxt = document.getElementById("taxesTxt");
   const totalTxt = document.getElementById("totalTxt");
   subTotalTxt.textContent = "Subtotal: $" + newSubTotal.toFixed(2);
   taxesTxt.textContent = "Taxes: $" + newTaxes.toFixed(2);
   totalTxt.textContent = "Total: $" + newTotal.toFixed(2);
+  if(discountTxt == null) {
+    const discountTxt = document.createElement("h1");
+    discountTxt.className = "totalScreenTxt";
+    discountTxt.id = "discountTxt";
+    discountTxt.textContent = "Discount: ($" + (subTotal-newSubTotal).toFixed(2) + ")";
+    taxesTxt.before(discountTxt);
+  }
+}
+
+function logoutUser() {
+  sessionStorage.removeItem("ID");
 }

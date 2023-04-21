@@ -526,3 +526,21 @@ table, th, td {
   margin-left: auto;
   margin-right: auto;
 }
+
+.noResults {
+  font-size: 50px;
+}
+
+.logout-Btn {
+  width: 200px;
+  padding: 7px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  background-color: #3a3a3a;
+  cursor: pointer;
+  outline: none;
+  margin-top: 15px;
+  margin-bottom: 50px;
+}

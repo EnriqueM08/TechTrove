@@ -90,6 +90,7 @@
         //TODO: Might add statement to return error again if no results which can then be displayed to screen
         $result = mysqli_query($conn, $query);
         $rows = array();
+        
         while($r = mysqli_fetch_assoc($result)) {
             $rows[] = $r;
         }
