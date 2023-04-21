@@ -78,9 +78,11 @@ function clearPage() {
   const orders = document.getElementById("orderDisplay");
   if(orders != null)
     orders.remove();
-  const productInfo = document.getElementById("productInfo");
-  if(productInfo != null)
+  const productInfo = document.getElementById("leftProductInfo");
+  if(productInfo != null){
     productInfo.remove();
+    document.getElementById("rightProductInfo").remove();
+  }
   const totalD = document.getElementById("totalDisplay");
   if(totalD != null)
     totalD.remove();
@@ -144,7 +146,7 @@ function searchProducts(query, filterName) {
         stringTmp += "\" alt=\"NO IMAGE\" width = 200px></button></div> <div class = \"right\"> <p class=\"title\">";
         stringTmp += object["pName"];
         stringTmp += "</p> <p class =\"price\">";
-        stringTmp += object["pPrice"];
+        stringTmp += "$" + object["pPrice"];
         stringTmp += "</p> <p class = \"description\">"
         stringTmp += object["pDescription"]
         stringTmp += "</p> </div> </div>";
@@ -181,23 +183,46 @@ function searchProducts(query, filterName) {
 }
 
 function switchToDetailScreen(productName, productDescription, productImage, productPrice, productCategory, productInventory, product) {
-  const div = document.createElement("div");
-  div.className = "productInfo";
-  div.id = "productInfo";
-  var stringTmp ="<h1 class=\"productName\" id = \"pName\"></h1><h1 class=\"productDesc\" id = \"pDescription\"></h1><img class=\"productImage\" id = \"pImage\">  <img><h1 class=\"productPrice\" id = \"pPrice\"></h1><h1 class=\"productCategory\" id = \"pCategory\"></h1><h1 class=\"productInventory\" id = \"pInventory\"></h1><button class=\"addCart\" id= \"addBtn\">ADD TO CART</button>";
-  body.append(div);
-  div.innerHTML = stringTmp;
+  const leftDiv = document.createElement("div");
+  leftDiv.className = "pInfoLeft";
+  leftDiv.id = "leftProductInfo";
+
+  const rightDiv = document.createElement("div");
+  rightDiv.className = "pInfoRight";
+  rightDiv.id = "rightProductInfo";
+
+  var stringTmp = "<h2 class=\"productName\" id = \"pName\" style=\"margin: 0px\"></h2><h2 class=\"productCategory\" id = \"pCategory\" style=\"position: absolute; top: 330px; color: orange\"></h2>"
+  leftDiv.innerHTML = stringTmp;
+
+  var stringTmp ="<h3 class=\"productDesc\" id = \"pDescription\" style=\"color: orange; margin-right: 100px\"></h3><h3 class=\"productPrice\" id = \"pPrice\" style=\"color: orange\"><h3 class=\"productInventory\" id = \"pInventory\" style=\"color: orange\"></h3><button class=\"addCart-btn\" id= \"addBtn\">ADD TO CART</button>";
+  rightDiv.innerHTML = stringTmp;
+
+  body.append(leftDiv);
+  body.append(rightDiv);
+
+  // const div = document.createElement("div");
+  // div.className = "productInfo";
+  // div.id = "productInfo";
+  // var stringTmp ="<h1 class=\"productName\" id = \"pName\"></h1><h1 class=\"productDesc\" id = \"pDescription\"></h1><img class=\"productImage\" id = \"pImage\">  <img><h1 class=\"productPrice\" id = \"pPrice\"></h1><h1 class=\"productCategory\" id = \"pCategory\"></h1><h1 class=\"productInventory\" id = \"pInventory\"></h1><button className=\"addCart-btn\" id= \"addBtn\">ADD TO CART</button>";
+  // body.append(div);
+  // div.innerHTML = stringTmp;
   let pName = document.getElementById("pName");
   pName.textContent = "Name: " + productName;
 
   let pDescription = document.getElementById("pDescription");
   pDescription.textContent = "Description: " + productDescription;
 
-  let pImage = document.getElementById("pImage");
-  pImage.textContent = "Image: " + productImage;
+  // let pImage = document.getElementById("pImage");
+  // pImage.textContent = "Image: " + productImage;
+  
+  const productImg = document.createElement("img");
+  productImg.className = "productImg";
+  productImg.id = "pImage";
+  productImg.src = productImage;
+  leftDiv.append(productImg);
   
   let pPrice = document.getElementById("pPrice");
-  pPrice.textContent = "Price: " + productPrice;
+  pPrice.textContent = "Price: $" + productPrice;
 
   let pCategory = document.getElementById("pCategory");
   pCategory.textContent = "Category: " + productCategory;
