@@ -35,6 +35,17 @@ profBtn.addEventListener('click', event => {
     switchToLogin();
 });
 
+//This will handle when the edit button is pressed.
+let editBtn = document.getElementById("edit");
+editBtn.addEventListener('click', event => {
+  clearPage();
+  //If the user is logged in, it will display the profile edit page
+  if(isLoggedIn())
+	switchToEdit();
+  else
+	switchToLogin();
+});
+
 //This will handle when the cart button is pressed.
 let cartBtn = document.getElementById("cart");
 cartBtn.addEventListener('click', event => {
@@ -396,6 +407,50 @@ function switchToLogin() {
     let passwordTxt = document.getElementById("loginPasswordInput").value;
     if(usernameTxt != "" && passwordTxt != "")
       attemptLogin(usernameTxt, passwordTxt, "attemptAdminLogin");
+  });
+}
+
+//Function to switch to the edit profile screen
+function switchToEdit() {
+	const login = document.getElementById("tempLogin");
+	if(login != null)
+		login.remove();
+		const create = document.getElementById("tempCreate");
+	if(create != null)
+		create.remove();
+		const verticalLine = document.getElementById("verticalLine");
+	if(verticalLine != null)
+		verticalLine.remove();    
+   
+	var stringTmp = "<h2 class=\"createHeader\">Registration Almost Complete</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
+	const div = document.getElementById("tempRegister");
+	div.innerHTML = stringTmp;
+	const register = document.getElementById("register");
+
+  
+
+	register.addEventListener('click', event => {
+    let firstNameTxt = document.getElementById("firstName").value;
+    let lastNameTxt = document.getElementById("lastName").value;
+    let mailingAddressTxt = document.getElementById("mailingAddress").value;
+    let mailingCityTxt = document.getElementById("mailingCity").value;
+    let mailingStateTxt = document.getElementById("mailingState").value;
+    let mailingZipCodeTxt = document.getElementById("mailingZipCode").value;
+    let billingAddressTxt = document.getElementById("billingAddress").value;
+    let phoneNumberTxt = document.getElementById("phoneNumber").value;
+    let emailTxt = document.getElementById("email").value;
+    
+    
+    const parsed = parseInt(mailingZipCodeTxt);
+    if (isNaN(parsed)) { 
+      alert("PLEASE ONLY ENTER NUMBERS IN ZIPCODE ENTRY!");
+    }
+    else{
+      registerNewUser(usernameTxt, passwordTxt, firstNameTxt, lastNameTxt, mailingAddressTxt, mailingCityTxt, mailingStateTxt, mailingZipCodeTxt, billingAddressTxt, phoneNumberTxt, emailTxt);
+      clearPage();
+    }
+    alert("Updated!");
+    
   });
 }
 
