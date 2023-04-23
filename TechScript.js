@@ -7,6 +7,9 @@ var total = 0.0;
 var newSubTotal = 0.0;
 var newTaxes = 0.0;
 var newTotal = 0.0;
+
+createHomeView();
+
 // This will handle when the search button is pressed.
 let searchBtn = document.getElementById("search");
 searchBtn.addEventListener('click', event => {
@@ -22,6 +25,7 @@ searchBtn.addEventListener('click', event => {
 let homeBtn = document.getElementById("home");
 homeBtn.addEventListener('click', event => {
   clearPage();
+  createHomeView();
 });
 
 //This will handle when the profile button is pressed.
@@ -69,6 +73,9 @@ function clearPage() {
   const verticalLine = document.getElementById("verticalLine");
   if(verticalLine != null)
     verticalLine.remove();   
+  const homeView = document.getElementById("homeView");
+  if(homeView != null)
+    homeView.remove();
   const loginMsg = document.getElementById("log");
   if(loginMsg != null)
     loginMsg.remove();
@@ -529,6 +536,7 @@ function switchToOrders() {
   }
   else {
     const h2 = document.createElement("h2");
+    h2.className = "productName";
     h2.textContent = "If you have an account please log in to view orders. Otherwise please enter email and order number below!";
     h2.id = "orderDisplay";
     body.append(h2);
@@ -632,6 +640,7 @@ function attemptLogin(username, password, functionName) {
         body.append(txt);
         //This will add the logged-in class to the body which will allow the page to know user is logged in
         sessionStorage.setItem("ID", temp.cID);
+        sessionStorage.setItem("firstName", temp.firstName);
         //TODO: Should probably add element or maybe another class to body to keep track of username or userID
         if(functionName == "attemptAdminLogin") 
         {
@@ -900,4 +909,52 @@ function updatePrices() {
 
 function logoutUser() {
   sessionStorage.removeItem("ID");
+}
+
+function createHomeView(){
+  const div = document.createElement("div");
+  div.className = "homeView";
+  div.id = "homeView";
+
+  const h2 = document.createElement("h2");
+  h2.className = "productName";
+
+  if(isLoggedIn())
+    h2.textContent = "Welcome, " + sessionStorage.getItem("firstName") + "!";
+  else
+    h2.textContent = "Welcome, Guest!";
+
+  const homeProductBtn = document.createElement("button");
+  homeProductBtn.className = "homeProduct-btn";
+  homeProductBtn.id = "homeProduct";
+  homeProductBtn.textContent = "Browse Products";
+
+  const homeLoginBtn = document.createElement("button");
+  homeLoginBtn.className = "homeLogin-btn";
+  homeLoginBtn.id = "homeLogin";
+
+  if(isLoggedIn())
+     homeLoginBtn.textContent = "View Profile"
+  else
+     homeLoginBtn.textContent = "Login/Sign-up";
+
+  body.append(div)
+  div.append(h2);
+  div.append(homeProductBtn);
+  div.append(homeLoginBtn);
+
+  let loginBtn = document.getElementById("homeLogin");
+  loginBtn.addEventListener('click', event => {
+    clearPage();
+    if(isLoggedIn())
+      switchToProfile();
+    else
+      switchToLogin();
+  });
+  
+  let productsBtn = document.getElementById("homeProduct");
+  productsBtn.addEventListener('click', event => {
+    clearPage();
+    searchProducts(" ", "default");
+  });
 }
