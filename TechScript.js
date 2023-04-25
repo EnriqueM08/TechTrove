@@ -444,27 +444,29 @@ function switchToLogin() {
 
 //Function to switch to the edit profile screen
 function switchToEdit() {
+	const editDiv = document.createElement("div");
+	editDiv.className = "edit";
+	editDiv.id = "tempEdit";
 	
-	//var stringTmp = "<h2 class=\"createHeader\">Make any changes needed, leave any space blank to leave the same</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
-	const div = document.getElementById("tempEdit");
+	const registerDiv = document.createElement("div");
+	registerDiv.className = "register";
+	registerDiv.id = "tempRegister";
+	
+	body.append(editDiv);
+	body.append(registerDiv);
+  
+	var stringTmp = "<h2 class=\"createHeader\">Make any changes needed, leave any space blank to leave the same</h2><form class=\"uName\"><input type=\"text\" id=\"username\" placeholder=\"Enter new Username\"></form><form class=\"pass\"><input type=\"text\" id=\"password\" placeholder=\"Enter new password\"></form><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
+	const div = document.getElementById("tempRegister");
 	div.innerHTML = stringTmp;
-	const edit = document.getElementById("edit");
-	const editHeader = document.createElement("h2");
-	editHeader.className = "createHeader";
-	const editNode = document.createTextNode("Make any changes needed, leave any space blank to leave the same");
-	editHeader.append(editNode);
+	const edit = document.getElementById("register");
 	
-	const updateFirstName = document.createElement("form");
-	updateFirstName.className = "username"
-	updateFirstName.id = "updateFirstName";
-	const updateFirstNameInput = document.createElement("input");
-	updateFirstNameInput.type = "text";
-	updateFirstNameInput.id = "updateFirstNameInput";
-	updateFirstNameInput.placeholder = "updateFirstName";
+	registerDiv.append(edit);
 
 	var cID = sessionStorage.getItem("ID");
 
 	edit.addEventListener('click', event => {
+	let usernameTxt = document.getElementById("username").value;
+	let passwordTxt = document.getElementById("password").value;
     let firstNameTxt = document.getElementById("firstName").value;
     let lastNameTxt = document.getElementById("lastName").value;
     let mailingAddressTxt = document.getElementById("mailingAddress").value;
