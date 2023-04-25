@@ -381,4 +381,96 @@
 
         return $row;
     }
+	
+	function editUser($user, $pass, $cID, $firstName, $lastName, $mailingAddress, $mailingCity, $mailingState, $mailingZipCode, $billingAddress, $phoneNumber, $email){
+		global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Conncetion failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+		
+		//if statements checking if the value is empty to either replace or leave the existing entry alone.
+		$sql = "UPDATE customers SET ";
+		if($user != ""){
+			$sql .= "`username`='";
+			$sql .= $user;
+			$sql .= "'";
+		}
+		if($pass != ""){
+			$sql = ", ";
+			$sql .= "`password`='";
+			$sql .= $pass;
+			$sql .= "'";
+		}
+		if($firstName != ""){
+			$sql .= ", ";
+			$sql .= "`firstName`='";
+			$sql .= $firstName;
+			$sql .= "'";
+        }
+		if($lastName != ""){
+			$sql .= ", ";
+			$sql .= "`lastName`='";
+			$sql .= $lastName;
+			$sql .= "'";
+		}
+		if($mailingAddress != ""){
+			$sql .= ", ";
+			$sql .= "`mailingAddress`='";
+			$sql .= $mailingAddress;
+			$sql .= "'";
+		}
+		if($mailingCity != ""){
+			$sql .= ", ";
+			$sql .= "`mailingCity`='";
+			$sql .= $mailingCity;
+			$sql .= "'";
+		}
+		if($mailingState != ""){
+			$sql .= ", ";
+			$sql .= "`mailingState`='";
+			$sql .= $mailingState;
+			$sql .= "'";
+		}
+		if($mailingZipCode != ""){
+			$sql .= ", ";
+			$sql .= "`mailingZipCode`='";
+			$sql .= $mailingZipCode;
+			$sql .= "'";
+		}
+		if($billingAddress != ""){
+			$sql .= ", ";
+			$sql .= "`billingAddress`='";
+			$sql .= $billingAddress;
+			$sql .= "'";
+		}
+		if($phoneNumber != ""){
+			$sql .= ", ";
+			$sql .= "`phoneNumber`='";
+			$sql .= $phoneNumber;
+			$sql .= "'";
+		}
+		if($email != ""){
+			$sql .= ", ";
+			$sql .= "`email`='";
+			$sql .= $email;
+			$sql .= "'";
+		}
+        $sql .= "' WHERE id="$cID")";
+        if($conn->query($sql) === TRUE) {
+            $newQ = "SELECT cID from customers WHERE email = '";
+            $newQ .= $email;
+            $newQ .= "';";
+            $result = mysqli_query($conn, $newQ);
+            $conn->close();
+            $row = $result->fetch_array();
+            return $row['cID'];
+        } else {
+            $conn->close();
+            return 'error';
+        }
+	}
 ?>

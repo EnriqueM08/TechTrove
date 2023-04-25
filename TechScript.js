@@ -44,10 +44,11 @@ let editBtn = document.getElementById("edit");
 editBtn.addEventListener('click', event => {
   clearPage();
   //If the user is logged in, it will display the profile edit page
-  if(isLoggedIn())
+  /*if(isLoggedIn())
 	switchToEdit();
   else
-	switchToLogin();
+	switchToLogin(); commented temporarily to see page without login*/
+	switchToEdit();
 });
 
 //This will handle when the cart button is pressed.
@@ -56,7 +57,7 @@ cartBtn.addEventListener('click', event => {
   clearPage();
   //Will display current cart
   switchToCart();
-})
+});
 
 //This will handle when the orders button is pressed.
 let orderBtn = document.getElementById("orders");
@@ -78,6 +79,9 @@ function clearPage() {
   const create = document.getElementById("tempCreate");
   if(create != null)
     create.remove();
+  const edit = document.getElementById("tempEdit");
+  if(edit != null)
+    edit.remove();
   const register = document.getElementById("tempRegister");
   if(register != null)
     register.remove();
@@ -440,24 +444,27 @@ function switchToLogin() {
 
 //Function to switch to the edit profile screen
 function switchToEdit() {
-	const login = document.getElementById("tempLogin");
-	if(login != null)
-		login.remove();
-		const create = document.getElementById("tempCreate");
-	if(create != null)
-		create.remove();
-		const verticalLine = document.getElementById("verticalLine");
-	if(verticalLine != null)
-		verticalLine.remove();    
-   
-	var stringTmp = "<h2 class=\"createHeader\">Registration Almost Complete</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
-	const div = document.getElementById("tempRegister");
+	
+	//var stringTmp = "<h2 class=\"createHeader\">Make any changes needed, leave any space blank to leave the same</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
+	const div = document.getElementById("tempEdit");
 	div.innerHTML = stringTmp;
-	const register = document.getElementById("register");
+	const edit = document.getElementById("edit");
+	const editHeader = document.createElement("h2");
+	editHeader.className = "createHeader";
+	const editNode = document.createTextNode("Make any changes needed, leave any space blank to leave the same");
+	editHeader.append(editNode);
+	
+	const updateFirstName = document.createElement("form");
+	updateFirstName.className = "username"
+	updateFirstName.id = "updateFirstName";
+	const updateFirstNameInput = document.createElement("input");
+	updateFirstNameInput.type = "text";
+	updateFirstNameInput.id = "updateFirstNameInput";
+	updateFirstNameInput.placeholder = "updateFirstName";
 
-  
+	var cID = sessionStorage.getItem("ID");
 
-	register.addEventListener('click', event => {
+	edit.addEventListener('click', event => {
     let firstNameTxt = document.getElementById("firstName").value;
     let lastNameTxt = document.getElementById("lastName").value;
     let mailingAddressTxt = document.getElementById("mailingAddress").value;
@@ -468,13 +475,12 @@ function switchToEdit() {
     let phoneNumberTxt = document.getElementById("phoneNumber").value;
     let emailTxt = document.getElementById("email").value;
     
-    
     const parsed = parseInt(mailingZipCodeTxt);
     if (isNaN(parsed)) { 
       alert("PLEASE ONLY ENTER NUMBERS IN ZIPCODE ENTRY!");
     }
     else{
-      registerNewUser(usernameTxt, passwordTxt, firstNameTxt, lastNameTxt, mailingAddressTxt, mailingCityTxt, mailingStateTxt, mailingZipCodeTxt, billingAddressTxt, phoneNumberTxt, emailTxt);
+      editUser(usernameTxt, passwordTxt, cID, firstNameTxt, lastNameTxt, mailingAddressTxt, mailingCityTxt, mailingStateTxt, mailingZipCodeTxt, billingAddressTxt, phoneNumberTxt, emailTxt);
       clearPage();
     }
     alert("Updated!");
