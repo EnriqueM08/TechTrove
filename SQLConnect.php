@@ -37,7 +37,7 @@
                 $aResult = orderProducts($_POST['orderNm'], $_POST['productID'], $_POST['productQuantity']);
                 break;
             case 'getCustomerOrders':
-                $aResult = getCustomerOrders($_POST['customerID']);
+                $aResult = getCustomerOrders($_POST['customerID'], $_POST['sortBy']);
                 break;
             case 'checkCode':
                 $aResult = checkCode($_POST['code']);
@@ -53,6 +53,12 @@
                 break;
             case 'createDiscount':
                 $aResult = createDiscount($_POST['discount'], $_POST['code'], $_POST['valid']);
+                break;
+            case 'createNewItem':
+                $aResult = createNewItem($_POST['pName'], $_POST['pDescription'], $_POST['pPrice'], $_POST['pImagePath'], $_POST['pInventory'], $_POST['pCategory']);
+                break;
+            case 'retrieveItemInfo':
+                $aResult = retrieveItemInfo($_POST['id']);
                 break;
             default:
             //    $aResult['error'] = 'Not found function '.$_POST['functionname'].'!';
@@ -336,34 +342,47 @@
             return 'error';
         }
     }
-
-    function getCustomerOrders($cID) {
+    
+    function getCustomerOrders($cID, $sortBy) {
         global $host, $username, $password, $database;
         //Connects to the database and will die and print error if connect fails
         $conn = new mysqli($host, $username, $password, $database);
-
         //Conncetion failed
+        
         if($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-        $sql = "SELECT o.orderID, p.pName, o.pQuantity, r.total, r.orderDateTime, r.status FROM orderProducts o, orders r, products p WHERE o.orderID = r.orderNum AND o.productID = p.pID AND r.cID = ";
-        $sql .= $cID;
-        $sql .= " ORDER BY o.orderID;";
-
+        if ($cID === "admin"){
+            $sql = "SELECT r.cID, o.orderID, p.pName, o.pQuantity, r.total, r.orderDateTime, r.status FROM orderProducts o, orders r, products p WHERE o.orderID = r.orderNum AND o.productID = p.pID";
+        }else{
+            $sql = "SELECT r.cID, o.orderID, p.pName, o.pQuantity, r.total, r.orderDateTime, r.status FROM orderProducts o, orders r, products p WHERE o.orderID = r.orderNum AND o.productID = p.pID AND r.cID = $cID";
+        }
+        switch ($sortBy) {
+            case "Order By Newest Date":
+                $sql .= " ORDER BY r.orderDateTime DESC";
+                break;
+            case "Order By Customer ID":
+                $sql .= " ORDER BY r.cID ASC, r.orderNum";
+                break;
+            case "Order By Total":
+                $sql .= " ORDER BY r.total DESC";
+                break;
+            case "default":
+                $sql .= " ORDER BY r.orderDateTime DESC";
+                break;
+        }
         $result = mysqli_query($conn, $sql);
         $rows = array();
         while($r = mysqli_fetch_assoc($result)) {
             $rows[] = $r;
         }
-
         //Closes database connection
         $conn -> close();
-
         //Returns the resulting rows
         return json_encode($rows);
     }
-
+    
     function checkCode($discountCode){
         global $host, $username, $password, $database;
         //Connects to the database and will die and print error if connect fails
@@ -472,16 +491,75 @@
             die("Connection failed: " . $conn->connect_error);
         }
 		
-	    $sql = "INSERT INTO discountCodes VALUES (";
+	    $sql = "INSERT INTO discountCodes VALUES ('";
         $sql .= $discount;
-        $sql .= ", ";
+        $sql .= "', '";
         $sql .= $code;
-        $sql .= ", ";
+        $sql .= "', ";
         $sql .= $valid;
         $sql .= ")";
 
         mysqli_query($conn, $sql);
         $conn->close();
         return 'Created';
+    }
+
+    function createNewItem($pName, $pDescription, $pPrice, $pImagePath, $pInventory, $pCategory) {
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Connection failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+		
+	    $sql = "INSERT INTO products VALUES (NULL, '";
+        $sql .= $pName;
+        $sql .= "', '";
+        $sql .= $pDescription;
+        $sql .= "', '";
+        $sql .= $pPrice;
+        $sql .= "', '";
+        $sql .= $pImagePath;
+        $sql .= "', ";
+        $sql .= $pInventory;
+        $sql .= ", '";
+        $sql .= $pCategory;
+        $sql .= "')";
+
+        mysqli_query($conn, $sql);
+        $conn->close();
+        return 'Created';
+    }
+
+    function retrieveItemInfo($pID) {
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Connection failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $query = "SELECT * FROM products WHERE pID='$pID'";
+
+        //Runs query and sets results to result
+        $result = mysqli_query($conn, $query);
+        //If there are no matching users then rows is given an error key to let javaScript know login failed.
+        //Can make more detailed if we wish to determine if user exists or such
+        if (mysqli_num_rows($result)==0) {
+            $rows = array("error" => true);
+            return json_encode($rows);
+        }
+        
+        //Otherwise will get the matching row
+        $row = mysqli_fetch_assoc($result);
+        
+        //Closes database connection
+        $conn -> close();
+
+        return json_encode($row);
     }
 ?>

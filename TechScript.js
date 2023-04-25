@@ -18,7 +18,6 @@ searchBtn.addEventListener('click', event => {
   if(query != "")
     //Will call function as long as the search text is not empty
     searchProducts(query, "default");
-  //alert("CONNECTED REMOTE");
 });
 
 //This will handle when the home button is pressed.
@@ -63,7 +62,7 @@ let orderBtn = document.getElementById("orders");
 orderBtn.addEventListener('click', event => {
   clearPage();
   //Will display previous orders if logged in or ask for order number if not
-  switchToOrders();
+  switchToOrders("default");
 });
 
 //Will clear the page of all temporary elements
@@ -113,6 +112,12 @@ function clearPage() {
   const wrappper = document.getElementById("wrapDiv");
   if(wrappper != null)
     wrappper.remove();
+  const sortOptions = document.getElementById("sortOptions");
+  if(sortOptions != null)
+    sortOptions.remove();
+  const tempAdd = document.getElementById("tempAdd");
+  if(tempAdd != null)
+    tempAdd.remove();
 }
 
 function clearResults() {
@@ -467,6 +472,7 @@ function switchToLogin() {
 function switchToEdit() {
   var cID = sessionStorage.getItem("ID");
   var selected = sessionStorage.getItem("selectedCustomer");
+  var selectedProduct = sessionStorage.getItem("selectedProduct");
   const wrapDiv = document.createElement("div");
   wrapDiv.className = "wrapper";
   wrapDiv.id = "wrapDiv";
@@ -476,7 +482,7 @@ function switchToEdit() {
     adminDiv.className = "admin";
     adminDiv.id = "tempAdmin";
 
-    adminDiv.innerHTML = "<form class=\"cID-form\"><input type=\"text\" id=\"cusID\" placeholder=\"Enter Customer ID to Edit\"></form><button id=\"selectCustomer\" class=\"register-btn\">Select Customer</button>";
+    adminDiv.innerHTML = "<form class=\"cID-form\"><input type=\"text\" id=\"cusID\" placeholder=\"Enter Customer ID to Edit\"></form><button id=\"selectCustomer\" class=\"register-btn\">Select Customer</button><h1 class = \"or\">OR</h1><button id=\"addItem\" class=\"register-btn\">Add New Item</button><h1 class = \"or\">OR</h1><form class=\"cID-form\"><input type=\"text\" id=\"pID\" placeholder=\"Enter Product ID to Edit\"></form><button id=\"editItem\" class=\"register-btn\">Edit Item</button><h1 class = \"or\">OR</h1><button id=\"createCoupon\" class=\"register-btn\">Create Coupon</button>";
     body.append(wrapDiv);
     wrapDiv.append(adminDiv);
 
@@ -487,11 +493,28 @@ function switchToEdit() {
       clearPage();
       switchToEdit();
     });
+
+    const itemSelectBtn = document.getElementById("addItem");
+    itemSelectBtn.addEventListener('click', event => {
+      clearPage();
+      switchToProductAdd();
+    });
+
+    const itemUpdateBtn = document.getElementById("editItem");
+    itemUpdateBtn.addEventListener('click', event => {
+      let pIDTxt = document.getElementById("pID").value;
+      clearPage();
+      switchToProductEdit(pIDTxt);
+    });
+
+    const createCoupon = document.getElementById("createCoupon");
+    createCoupon.addEventListener('click', event => {
+      clearPage();
+      switchToCouponCreate();
+    });
   }
   else{
 	var stringTmp = "<h2 class=\"createHeader\">Update Account Information</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">UPDATE</button>";
-
-  
 
   const registerDiv = document.createElement("div");
   registerDiv.className = "register";
@@ -590,25 +613,26 @@ function switchToCart() {
 }
 
 //Function to switch screen to order information page
-function switchToOrders() {
+function switchToOrders(sortByTxt) {
   if(isLoggedIn()) {
     const div = document.createElement("div");
     div.className = "py-5";
     div.id = "orderDisplay";
     //var stringTmp = "<h2>Order List</h2><fieldset class=\"fieldset\" id = \"orderField\"><legend>Orders</legend><</fieldset><div id=\"orderTable\"><table id=\"list\"></table></div>";
-    var stringTmp = "<div class=\"containter\"><div class =\"\"><div class =\"row\"><div class=\"col-md-12\"><table class=\"table\"><thead><tr><th>Order Number</th><th>ITEMS</th><th>Quantity</th><th>Total</th><th>Date</th><th>Status</th></tr></thead><tbody id = \"tableBody\"><tr>";
-    body.append(div);
-    div.innerHTML = stringTmp;
+    var stringTmp = "";
     var cID = sessionStorage.getItem("ID");
+    if(cID != "admin")
+      stringTmp = "<div class=\"containter\"><div class =\"\"><div class =\"row\"><div class=\"col-md-12\"><table class=\"table\"><thead><tr><th>Order Number</th><th>ITEMS</th><th>Quantity</th><th>Total</th><th>Date</th><th>Status</th></tr></thead><tbody id = \"tableBody\"><tr>";
+    else
+      stringTmp = "<div class=\"containter\"><div class =\"\"><div class =\"row\"><div class=\"col-md-12\"><table class=\"table\"><thead><tr><th>Customer ID</th><th>Order Number</th><th>ITEMS</th><th>Quantity</th><th>Total</th><th>Date</th><th>Status</th></tr></thead><tbody id = \"tableBody\"><tr>";
     jQuery.ajax({
       type: "POST",
       url: 'SQLConnect.php',
       dataType: 'JSON',
-      data: {functionname: 'getCustomerOrders', customerID: cID},
+      data: {functionname: 'getCustomerOrders', customerID: cID, sortBy: sortByTxt},
   
       success: function (obj) {
         var temp = JSON.parse(obj);
-        //alert(obj);
         //Will likely be an array so will iterate through getting values and updating areas.
         var curOrderNum = 0;
         var orderTmp = "";
@@ -631,6 +655,9 @@ function switchToOrders() {
             }
           }
           else{
+            if(cID == "admin")
+              orderTmp += "<td>" + object["cID"] + "</td>" + "<td>" + curOrderNum + "</td> <td>" + orderedItems + '</td><td>' + orderedQuant + "</td><td>" + orderedTotal + "</td><td>" + orderedDate + "</td><td>" + orderStatus + "</td></tr>";
+            else
             orderTmp += "<td>" + curOrderNum + "</td> <td>" + orderedItems + '</td><td>' + orderedQuant + "</td><td>" + orderedTotal + "</td><td>" + orderedDate + "</td><td>" + orderStatus + "</td></tr>";
             orderedItems = "<label class =\"testClass\">" + object["pName"] + "</label>";
             orderedQuant = "<label class =\"testClass\">" + object["pQuantity"] + "</label>";
@@ -640,18 +667,46 @@ function switchToOrders() {
             curOrderNum = object["orderID"];
           }
           if(i == temp.length-1) {
-            orderTmp += "<td>" + curOrderNum + "</td><td>" + orderedItems + '</td><td>' + orderedQuant + "</td><td>" + orderedTotal + "</td><td>" + orderedDate + "</td><td>" + orderStatus + "</td></tr>";
+            if(cID == "admin")
+              orderTmp += "<td>" + object["cID"] + "</td>" + "<td>" + curOrderNum + "</td><td>" + orderedItems + '</td><td>' + orderedQuant + "</td><td>" + orderedTotal + "</td><td>" + orderedDate + "</td><td>" + orderStatus + "</td></tr>";
+            else
+              orderTmp += "<td>" + curOrderNum + "</td><td>" + orderedItems + '</td><td>' + orderedQuant + "</td><td>" + orderedTotal + "</td><td>" + orderedDate + "</td><td>" + orderStatus + "</td></tr>";
           }
         }
+        var select = document.getElementById("sortOptions");
+        if(select == null) {
+          select = document.createElement("select");
+          select.id = "sortOptions";
+          var options;
+          if(cID == "admin")
+            options = ["Order By Newest Date", "Order By Customer ID", "Order By Total"];
+          else
+            options = ["Order By Newest Date", "Order By Total"]; 
+          for (var i = 0; i < options.length; i++) {
+            var option = document.createElement("option");
+            option.value = options[i];
+            option.text = options[i];
+            select.appendChild(option);
+          }
+          body.appendChild(select);
+        }
+        body.append(div);
+        div.innerHTML = stringTmp;
         const tableBody = document.getElementById("tableBody");
         tableBody.insertAdjacentHTML('beforeend', orderTmp);
+        select.addEventListener("change", function(e){
+          e.stopImmediatePropagation();
+          let filterName = select.value;
+          clearOrderResults();
+          switchToOrders(filterName);
+        });
       }
     }); 
   }
   else {
     const h2 = document.createElement("h2");
     h2.className = "productName";
-    h2.textContent = "If you have an account please log in to view orders. Otherwise please enter email and order number below!";
+    h2.textContent = "If you have an account please log in to view orders.";
     h2.id = "orderDisplay";
     body.append(h2);
     //ADD OPTION TO DISPLAY ORDER WITH EMAIL AND ORDER NUMBER WITHOUT LOGGING IN
@@ -728,6 +783,32 @@ function registerNewUser(username, password, firstName, lastName, mailingAddress
       }
     }
   }); 
+}
+
+function registerNewItem(pID, pName, pDescription, pPrice, pImagePath, pInventory, pCategory) {
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'text',
+    data: {
+      functionname: "registerItem",
+      productID: pID,
+      productName: pName,
+      productDescription: pDescription,
+      productPrice: pPrice,
+      productImagePath: pImagePath,
+      productInventory: pInventory,
+      productCategory: pCategory
+    },
+    success: function (obj) {
+      if (obj == "\"Registered\"") {
+        // You can perform any required actions after a successful registration here
+        alert("New item registered.");
+      } else {
+        alert("COULD NOT REGISTER NEW ITEM. ERROR: " + obj);
+      }
+    }
+  });
 }
 
 //Will use jQuery to make ajax call to connect to database and attempt to login to account
@@ -847,10 +928,6 @@ function removeFromCart(object) {
     if(object["pID"] == item.pID)
     {
       item.pInventory -= 1;
-      //alert("UPDATED QUANTITY: " + item.pInventory);
-      //if(item.pInventory <= 0) {
-        //items.remove
-      //}
     }
     if(item.pInventory > 0)
       newCart.items.push(item);
@@ -892,10 +969,8 @@ function placeOrder() {
       else {
         orderNum = parseInt(temp.orderNum) + 1;
       }
-      //alert(orderNum);
       var currentDate = new Date();
       var orderDateTime = currentDate.getFullYear() + "-" + (currentDate.getMonth()+1)  + "-" + currentDate.getDate() + " " + currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
-      //alert(orderDateTime);
       var cart = JSON.parse(sessionStorage.getItem("cart"));
       var items = cart.items;
       jQuery.ajax({
@@ -909,7 +984,6 @@ function placeOrder() {
             alert(obj);
           }
           else {
-            //alert("ORDER BEING PLACED!");
             for(var i = 0; i < items.length; i++) {
               var pID = items[i].pID;
               var pQuantity = items[i].pInventory;
@@ -990,18 +1064,15 @@ function checkAndApplyCode(discountCode) {
       else {
         if(obj[1] == "$")
         {
-          //alert(obj.substring(2,obj.length-1));
           newSubTotal = subTotal - parseInt(obj.substring(2, obj.length-1));
           newTaxes = newSubTotal * 0.0825;
           newTotal = newSubTotal + newTaxes + shippingCost;
-          //alert("SUBTOTAL: " + newSubTotal.toFixed(2) + " TAXES: " + newTaxes.toFixed(2) + " TOTAL: " + newTotal.toFixed(2));
         }
         else if(obj[1] == "%")
         {
           newSubTotal = subTotal * (1.0 - (parseFloat(obj.substring(2, obj.length-1)) / 100));
           newTaxes = newSubTotal * 0.0825;
           newTotal = newSubTotal + newTaxes + shippingCost;
-          //alert("SUBTOTAL: " + newSubTotal.toFixed(2) + " TAXES: " + newTaxes.toFixed(2) + " TOTAL: " + newTotal.toFixed(2));
         }
         updatePrices();
       }
@@ -1202,5 +1273,271 @@ function updateAccountInfo(firstName, lastName, mailingAddress, mailingCity, mai
           alert("COULD NOT UPDATE ACCOUNT INFORMATION. ERROR: " + obj);
         }
 	}
+  }); 
+}
+
+function searchProducts(query, filterName) {
+  //Uses ajax to make request to SQLConnect to connect to database and get data.
+  //Currently grabbing all data may switch to only grab pImagePath and pID.
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'JSON',
+    data: {functionname: 'getProductData', parameter: query, parameterTwo: filterName},
+
+    success: function (obj) {
+      //If successful will create new elemets to display data
+      var div = document.getElementById("tempGrid");
+      if(div == null)
+      {
+        div = document.createElement("div");
+        div.className = "grid";
+        div.id = "tempGrid";
+        const body = document.querySelector('body');
+        body.append(div);
+      }
+      
+      //Parse through returned JSON from SQLConnect function and create values
+      var temp = JSON.parse(obj);
+      const tempFilter = document.getElementsByClassName("filter-group");
+      var stringTmp = "";
+      if(tempFilter.length == 0)
+      {
+        stringTmp += "<div class=\"filter-group\"><label>SORT BY: </label> <select class=\"form-control\" id =\"filter\"><option>Default</option><option>Price: Low to High</option><option>Price: High to Low</option><option>Alphabetical</option><option>Newest Arrivals</option><option>Availability</option></select></div>";
+      }
+  
+        //Will likely be an array so will iterate through getting values and updating areas.
+      for (var i = 0; i < temp.length; i++) {
+        var object = temp[i];
+        stringTmp += "<div id = \"pTemp\" class = \"product\"> <div class = \"left\"> <button id =\"";
+        stringTmp += object["pID"];
+        stringTmp += "\"><img src = \"";
+        stringTmp += object["pImagePath"];
+        stringTmp += "\" alt=\"NO IMAGE\" width = 200px></button></div> <div class = \"right\"> <p class=\"title\">";
+        stringTmp += object["pName"];
+        stringTmp += "</p> <p class =\"price\">";
+        stringTmp += "$" + object["pPrice"];
+        stringTmp += "</p> <p class = \"description\">"
+        stringTmp += object["pDescription"]
+        stringTmp += "</p> </div> </div>";
+      }
+      div.insertAdjacentHTML('beforeend', stringTmp);
+      for (var i = 0; i < temp.length; i++)
+      {
+        var object = temp[i];
+        let itemBtn = document.getElementById(object["pID"].toString());
+        //NEED to fix this still.
+        itemBtn.addEventListener('click', event => {
+          for(var j = 0; j < temp.length; j++)
+          {
+            if(temp[j]["pID"] == itemBtn.id)
+              var selected = temp[j];
+          }
+          clearPage();
+          //Will display previous orders if logged in or ask for order number if not
+          switchToDetailScreen(selected["pName"], selected["pDescription"], selected["pImagePath"], selected["pPrice"], selected["pCategory"], selected["pInventory"], selected);
+        });
+      }
+      const tempP = document.getElementById("pTemp");
+      if(tempP == null)
+      {
+        div.innerHTML = "<label class = \"noResults\">No results found please search again!<lable>";
+      }
+      else{
+        let filterMenu = document.getElementById("filter");
+        filterMenu.addEventListener("change", function(e){
+          e.stopImmediatePropagation();
+          let filterName = filterMenu.value;
+          clearResults();
+          searchProducts(query, filterName);
+        });
+      }
+     },
+     error: function(xhr, status, error) {
+       alert(xhr);
+     }
+  });
+}
+
+function clearOrderResults() {
+  const toRemove = document.getElementById("orderDisplay");
+  toRemove.remove();
+}
+
+function switchToProductAdd() {
+  const div = document.createElement("div");
+  div.id = "tempAdd";
+  div.className = "tmpAdd";
+  body.append(div);
+  div.innerHTML = "<h2 class=\"createHeader\">Fill out Item Info</h2><form class=\"pName\"><input type=\"text\" id=\"pNameInput\" placeholder=\"Enter Product Name\"></form><form class=\"pDescription\"><input type=\"text\" id=\"pDescriptionInput\" placeholder=\"Enter Product Description\"></form><form class=\"pPrice\"><input type=\"text\" id=\"pPriceInput\" placeholder=\"Enter Product Price\"></form><form class=\"pImagePath\"><input type=\"text\" id=\"pImagePathInput\" placeholder=\"Enter Product Image Path\"></form><form class=\"pInventory\"><input type=\"text\" id=\"pInventoryInput\" placeholder=\"Enter Product Inventory\"></form><form class=\"pCategory\"><input type=\"text\" id=\"pCategoryInput\" placeholder=\"Enter Product Category\"></form><button id=\"addItemBtn\" class=\"register-btn\">Confirm and Add Item</button>";
+  const addBtn = document.getElementById("addItemBtn"); 
+
+  addBtn.addEventListener('click', event => {
+    let pNameTxt = document.getElementById("pNameInput").value;
+    let pDescriptionTxt = document.getElementById("pDescriptionInput").value;
+    let pPriceTxt = document.getElementById("pPriceInput").value;
+    let pImagePathTxt = document.getElementById("pImagePathInput").value;
+    let pInventoryTxt = document.getElementById("pInventoryInput").value;
+    let pCategoryTxt = document.getElementById("pCategoryInput").value;
+    
+    if(pNameTxt == "" || pDescriptionTxt == "" || pPriceTxt == "" || pInventoryTxt == "" || pCategoryTxt == "")
+    {
+      alert("PLEASE FILL OUT ALL FIELDS (You may leave the image path blank)");
+    }
+    else
+    {
+      const parsed = parseInt(pInventoryTxt);
+      if (isNaN(parsed)) { 
+        alert("PLEASE ONLY ENTER NUMBERS IN inventory ENTRY!");
+      }
+      else{
+        if(pImagePathTxt == ""){
+          pImagePathTxt = "https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg";
+        }
+        jQuery.ajax({
+          type: "POST",
+          url: 'SQLConnect.php',
+          dataType: 'text',
+          data: {functionname: 'createNewItem', pName: pNameTxt, pDescription: pDescriptionTxt, pPrice: pPriceTxt, pImagePath: pImagePathTxt, pInventory: pInventoryTxt, pCategory: pCategoryTxt},
+      
+          success: function (obj) {
+            //If there is an error value then the login was unsucceful we can display more information if wanted.
+            if (obj != "\"Created\"") {
+              alert("ERROR CREATING ITEM");
+            }
+            else {
+              alert("Item added!");
+              //TODO: Should probably add element or maybe another class to body to keep track of username or userID
+            }
+          }
+        }); 
+        clearPage();
+        switchToEdit();
+      }
+    }
+  });
+}
+
+function switchToProductEdit(pID) {
+  const div = document.createElement("div");
+  div.id = "tempAdd";
+  div.className = "tmpAdd";
+  body.append(div);
+  div.innerHTML = "<h2 class=\"createHeader\">Fill out Item Info</h2><form class=\"pName\"><input type=\"text\" id=\"pNameInput\" placeholder=\"Enter Product Name\"></form><form class=\"pDescription\"><input type=\"text\" id=\"pDescriptionInput\" placeholder=\"Enter Product Description\"></form><form class=\"pPrice\"><input type=\"text\" id=\"pPriceInput\" placeholder=\"Enter Product Price\"></form><form class=\"pImagePath\"><input type=\"text\" id=\"pImagePathInput\" placeholder=\"Enter Product Image Path\"></form><form class=\"pInventory\"><input type=\"text\" id=\"pInventoryInput\" placeholder=\"Enter Product Inventory\"></form><form class=\"pCategory\"><input type=\"text\" id=\"pCategoryInput\" placeholder=\"Enter Product Category\"></form><button id=\"editItemBtn\" class=\"register-btn\">Confirm and Edit Item</button>";
+  const eBtn = document.getElementById("editItemBtn"); 
+
+  fillItemUpdateInfo(pID);
+
+  eBtn.addEventListener('click', event => {
+    let pNameTxt = document.getElementById("pNameInput").value;
+    let pDescriptionTxt = document.getElementById("pDescriptionInput").value;
+    let pPriceTxt = document.getElementById("pPriceInput").value;
+    let pImagePathTxt = document.getElementById("pImagePathInput").value;
+    let pInventoryTxt = document.getElementById("pInventoryInput").value;
+    let pCategoryTxt = document.getElementById("pCategoryInput").value;
+    
+    if(pNameTxt == "" || pDescriptionTxt == "" || pPriceTxt == "" || pInventoryTxt == "" || pCategoryTxt == "")
+    {
+      alert("PLEASE FILL OUT ALL FIELDS (You may leave the image path blank)");
+    }
+    else
+    {
+      const parsed = parseInt(pInventoryTxt);
+      if (isNaN(parsed)) { 
+        alert("PLEASE ONLY ENTER NUMBERS IN inventory ENTRY!");
+      }
+      else{
+        if(pImagePathTxt == ""){
+          pImagePathTxt = "https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg";
+        }
+        jQuery.ajax({
+          type: "POST",
+          url: 'SQLConnect.php',
+          dataType: 'text',
+          data: {functionname: 'updateItemInfo', pID: pID, pName: pNameTxt, pDescription: pDescriptionTxt, pPrice: pPriceTxt, pImagePath: pImagePathTxt, pInventory: pInventoryTxt, pCategory: pCategoryTxt},
+      
+          success: function (obj) {
+            //If there is an error value then the login was unsucceful we can display more information if wanted.
+            if (obj != "\"Updated\"") {
+              alert("ERROR UPDATING ITEM");
+            }
+            else {
+              alert("Item edited!");
+              //TODO: Should probably add element or maybe another class to body to keep track of username or userID
+            }
+          }
+        }); 
+        clearPage();
+        switchToEdit();
+      }
+    }
+  });
+}
+
+function fillItemUpdateInfo(pID){
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'JSON',
+    data: {functionname: "retrieveItemInfo", id: pID},
+
+    success: function (obj) {
+      var temp = JSON.parse(obj);
+      //If there is an error value then the login was unsucceful we can display more information if wanted.
+      if (temp.error) {
+        alert("ERROR RETRIEVING ITEM INFORMATION");
+        clearPage();
+        switchToEdit();
+      }
+      //Else, fill input fields with the user's account information
+      else {
+        var pNameTxt = document.getElementById("pNameInput");
+        pNameTxt.value = temp.pName;
+        var pDescriptionTxt = document.getElementById("pDescriptionInput");
+        pDescriptionTxt.value = temp.pDescription;
+        var pPriceTxt = document.getElementById("pPriceInput");
+        pPriceTxt.value = temp.pPrice;
+        var pImagePathTxt = document.getElementById("pImagePathInput");
+        pImagePathTxt.value = temp.pImagePath;
+        var pInventoryTxt = document.getElementById("pInventoryInput");
+        pInventoryTxt.value = temp.pInventory;
+        var pCategoryTxt = document.getElementById("pCategoryInput");
+        pCategoryTxt.value = temp.pCategory;
+      }
+    }
+  }); 
+}
+
+function switchToCouponCreate() {
+  const div = document.createElement("div");
+  div.id = "tempAdd";
+  div.className = "tmpAdd";
+  body.append(div);
+  div.innerHTML = "<h2 class=\"createHeader\">Fill out Discount Info</h2><form class=\"discount\"><input type=\"text\" id=\"discountInput\" placeholder=\"Enter Discount(Format: $int or %int):\"></form><form class=\"discountCode\"><input type=\"text\" id=\"discountCodeInput\" placeholder=\"Enter Discount Code: \"></form></form><button id=\"addCouponBtn\" class=\"register-btn\">Confirm and Add Coupon</button>";
+  const couponBtn = document.getElementById("addCouponBtn");
+  couponBtn.addEventListener('click', event=> {
+    let discountTxt = document.getElementById("discountInput").value;
+    let codeTxt = document.getElementById("discountCodeInput").value;
+
+    alert("DISCOUNT TXT: " + discountTxt + " CODE TXT: " + codeTxt);
+    jQuery.ajax({
+      type: "POST",
+      url: 'SQLConnect.php',
+      dataType: 'text',
+      data: {functionname: "createDiscount", discount: discountTxt, code:codeTxt, valid: 1},
+  
+      success: function (obj) {
+        alert(obj);
+        if (obj != "\"Created\"") {
+          alert("ERROR CREATING DISCOUNT");
+        }
+        //Else, fill input fields with the user's account information
+        else {
+          alert("Discount Created Successfully!");
+          clearPage();
+          switchToEdit();
+        }
+      }
+    }); 
   }); 
 }

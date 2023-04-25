@@ -594,6 +594,14 @@ table, th, td {
   color: black;
 }
 
+.admin {
+  display: grid;
+  align-content: space-between;
+  justify-content: center;
+  align-items: center;
+  justify-items: center;
+}
+
 .admin input{
   background: transparent;
   flex: 1;
@@ -606,4 +614,14 @@ table, th, td {
 .admin form {
   border-bottom: 1px solid #3a3a3a;
   width: 255px;
+  padding-top: 10px
+}
+
+.tmpAdd {
+  text-align: center;
+}
+
+.or {
+  font-size: 20px;
+  padding-top: 10px;
 }
