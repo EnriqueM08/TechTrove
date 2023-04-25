@@ -27,6 +27,7 @@ h1 {
   font-family:georgia,garamond,serif;
   font-style: italic;
   text-decoration: underline;
+  text-align: center;
 }
 
 /* Used to maintain layout of elements on the page */
@@ -418,13 +419,11 @@ h1 {
 }
 
 table, th, td {
-  /* width: 100%;   */
   border: 1px solid black;   
   border-collapse: collapse;    
   text-align: center;  
   font-size: 20px;  
-  padding-inline: 200px;
-  /* margin-left: 15px; */
+  padding-inline: 90px;
 }
 
 .product {
@@ -566,6 +565,17 @@ table, th, td {
   font-size: 50px;
 }
 
+.logout-wrapper {
+  margin-left: auto;
+  margin-right: auto;
+  width: 960px;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  display: grid;
+  text-align: center;
+}
+
 .logout-Btn {
   width: 200px;
   padding: 7px;
@@ -576,6 +586,24 @@ table, th, td {
   background-color: #3a3a3a;
   cursor: pointer;
   outline: none;
-  margin-top: 15px;
-  margin-bottom: 50px;
+  margin: auto;
+}
+
+.profTxt {
+  font-size: 20px;
+  color: black;
+}
+
+.admin input{
+  background: transparent;
+  flex: 1;
+  border: 0;
+  outline: none;
+  font-size: 20px;
+  color: #cac7ff;
+}
+
+.admin form {
+  border-bottom: 1px solid #3a3a3a;
+  width: 255px;
 }

@@ -48,6 +48,12 @@
 		    case 'updateUserInfo':
                 $aResult = updateCustomerInformation($_POST['id'],  $_POST['fName'], $_POST['lName'], $_POST['mAddress'], $_POST['mCity'], $_POST['mState'], $_POST['mZipCode'], $_POST['bAddress'], $_POST['pNumber'], $_POST['eMail']);
 			    break;
+            case 'updateItemInfo':
+                $aResult = updateItemInfo($_POST['pID'], $_POST['pName'], $_POST['pDescription'], $_POST['pPrice'], $_POST['pImagePath'], $_POST['pInventory'], $_POST['pCategory']);
+                break;
+            case 'createDiscount':
+                $aResult = createDiscount($_POST['discount'], $_POST['code'], $_POST['valid']);
+                break;
             default:
             //    $aResult['error'] = 'Not found function '.$_POST['functionname'].'!';
                break;
@@ -430,11 +436,52 @@
             die("Connection failed: " . $conn->connect_error);
         }
 		
-	  $newQ = "UPDATE customers SET firstName='$firstName', lastName='$lastName', mailingAddress='$mailingAddress', mailingCity='$mailingCity', 
+	     $newQ = "UPDATE customers SET firstName='$firstName', lastName='$lastName', mailingAddress='$mailingAddress', mailingCity='$mailingCity', 
         mailingState='$mailingState', mailingZipCode='$mailingZipCode', billingAddress='$billingAddress', phoneNumber='$phoneNumber', email='$email' WHERE cID='$cID'";
 
         mysqli_query($conn, $newQ);
         $conn->close();
         return 'Updated';
+    }
+
+    function updateItemInfo($pID, $pName, $pDescription, $pPrice, $pImagePath, $pInventory, $pCategory) {
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Connection failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+		
+	    $newQ = "UPDATE products SET pName='$pName', pDescription='$pDescription', pPrice='$pPrice', pImagePath='$pImagePath', 
+        pInventory='$pInventory', pCategory='$pCategory' WHERE pID='$pID'";
+
+        mysqli_query($conn, $newQ);
+        $conn->close();
+        return 'Updated';
+    }
+
+    function createDiscount($discount, $code, $valid) {
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Connection failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+		
+	    $sql = "INSERT INTO discountCodes VALUES (";
+        $sql .= $discount;
+        $sql .= ", ";
+        $sql .= $code;
+        $sql .= ", ";
+        $sql .= $valid;
+        $sql .= ")";
+
+        mysqli_query($conn, $sql);
+        $conn->close();
+        return 'Created';
     }
 ?>

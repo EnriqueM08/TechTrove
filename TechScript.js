@@ -110,6 +110,9 @@ function clearPage() {
   const profileInfo = document.getElementById("logOutBtn");
   if(profileInfo != null)
     profileInfo.remove();
+  const wrappper = document.getElementById("wrapDiv");
+  if(wrappper != null)
+    wrappper.remove();
 }
 
 function clearResults() {
@@ -282,11 +285,32 @@ function switchToDetailScreen(productName, productDescription, productImage, pro
 
 //This function will handle updating elements to switch to the profile screen
 function switchToProfile() {
+  var stringTmp = "<h2 class=\"createHeader\">Account Information</h2><h1 class=\"profTxt\" id=\"firstName\" ></h1><h1 class=\"profTxt\" id=\"lastName\"></h1><h1 class=\"profTxt\" id=\"mailingAddress\"></h1><h1 class=\"profTxt\" id=\"mailingCity\"></h1><h1 class=\"profTxt\" id=\"mailingState\"></h1><h1 class=\"profTxt\" id=\"mailingZipCode\"></h1><h1 class=\"profTxt\" id=\"billingAddress\"></h1><h1 class=\"profTxt\" id=\"phoneNumber\"></h1><h1 class=\"profTxt\" id=\"email\"></h1>";
+  const wrapDiv = document.createElement("div");
+  wrapDiv.className = "wrapper";
+  wrapDiv.id = "wrapDiv";
+
+  const tempDiv = document.createElement("div");
+  tempDiv.className = "profile";
+  tempDiv.id = "tempProfile";
+
+  const logoutWrap = document.createElement("div");
+  logoutWrap.className = "logout-wrapper";
+  logoutWrap.id = "logOutBtn";
+
+  body.append(wrapDiv);
+
+  wrapDiv.appendChild(tempDiv);
+
+	tempDiv.innerHTML = stringTmp;
+
+  if(sessionStorage.getItem("ID") != "admin")
+    fillCustomerInfo(sessionStorage.getItem("ID"));
+  else {
+    tempDiv.innerHTML = "<h2>You are logged in on an Admin Account!</h2>";
+  }
   //TODO: ACTUALLY ADD information currentl will just display that user is logged in for testing.
-  const txt = document.createElement("h2");
-  txt.className = "log-txt";
-  txt.id = "log";
-  txt.textContent = "NEED TO DO";
+
   const logoutBtn = document.createElement("btn");
   logoutBtn.className = "logout-Btn";
   logoutBtn.id = "logOutBtn";
@@ -296,8 +320,9 @@ function switchToProfile() {
     clearPage();
     switchToLogin();
   });
-  body.append(txt);
-  body.append(logoutBtn);
+  body.append(wrapDiv);
+  body.append(logoutWrap);
+  logoutWrap.append(logoutBtn);
   return;
 }
 
@@ -440,11 +465,33 @@ function switchToLogin() {
 
 //Function to switch to the edit profile screen
 function switchToEdit() {
-	var stringTmp = "<h2 class=\"createHeader\">Update Account Information</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">UPDATE</button>";
-
+  var cID = sessionStorage.getItem("ID");
+  var selected = sessionStorage.getItem("selectedCustomer");
   const wrapDiv = document.createElement("div");
   wrapDiv.className = "wrapper";
   wrapDiv.id = "wrapDiv";
+  if(cID == "admin" && selected == null)
+  {
+    const adminDiv = document.createElement("div");
+    adminDiv.className = "admin";
+    adminDiv.id = "tempAdmin";
+
+    adminDiv.innerHTML = "<form class=\"cID-form\"><input type=\"text\" id=\"cusID\" placeholder=\"Enter Customer ID to Edit\"></form><button id=\"selectCustomer\" class=\"register-btn\">Select Customer</button>";
+    body.append(wrapDiv);
+    wrapDiv.append(adminDiv);
+
+    const selectBtn = document.getElementById("selectCustomer");
+    selectBtn.addEventListener('click', event => {
+      let cIDTxt = document.getElementById("cusID").value;
+      sessionStorage.setItem("selectedCustomer", cIDTxt);
+      clearPage();
+      switchToEdit();
+    });
+  }
+  else{
+	var stringTmp = "<h2 class=\"createHeader\">Update Account Information</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">UPDATE</button>";
+
+  
 
   const registerDiv = document.createElement("div");
   registerDiv.className = "register";
@@ -457,7 +504,11 @@ function switchToEdit() {
 	registerDiv.innerHTML = stringTmp;
 	const register = document.getElementById("register");
 
-  fillUpdateInfo(sessionStorage.getItem("ID"));
+  if(cID == "admin") {
+    fillUpdateInfo(sessionStorage.getItem("selectedCustomer"))
+  }
+  else
+    fillUpdateInfo(sessionStorage.getItem("ID"));
 
 	register.addEventListener('click', event => {
     let firstNameTxt = document.getElementById("firstName").value;
@@ -487,6 +538,7 @@ function switchToEdit() {
     	alert("Updated!");
     }  
   });
+  }
 }
 
 //Function to switch screen to cart information page
@@ -494,7 +546,7 @@ function switchToCart() {
   const form = document.createElement("form");
   form.className = "shoppingList";
   form.id = "cartDisplay";
-  var stringTmp ="<div id=\"itemsTable\"><h2>Shopping Cart</h2><table id=\"list\"><tbody id=\"cartBody\"></tbody></table><label>* Delete all items<input class = \"clearBtn\"id = \"clearBtn\" type=\"button\" value=\"Clear\"></label></div>";
+  var stringTmp ="<div id=\"itemsTable\"><h2>Shopping Cart</h2><table class = \"cartTable\" id=\"list\"><tbody id=\"cartBody\"></tbody></table><label>* Remove all items<input class = \"clearBtn\"id = \"clearBtn\" type=\"button\" value=\"Clear Cart\"></label></div>";
   body.append(form);
   form.innerHTML = stringTmp;
   checkCart();
@@ -647,9 +699,10 @@ function switchToRegister(usernameTxt, passwordTxt) {
       }
       else{
         registerNewUser(usernameTxt, passwordTxt, firstNameTxt, lastNameTxt, mailingAddressTxt, mailingCityTxt, mailingStateTxt, mailingZipCodeTxt, billingAddressTxt, phoneNumberTxt, emailTxt);
+        sessionStorage.setItem("firstName", firstNameTxt);
+        alert("Registered!");
         clearPage();
       }
-      alert("Registered!");
     }
   });
 }
@@ -701,12 +754,16 @@ function attemptLogin(username, password, functionName) {
         txt.textContent = "LOGGED IN SUCCESSFULLY";
         body.append(txt);
         //This will add the logged-in class to the body which will allow the page to know user is logged in
-        sessionStorage.setItem("ID", temp.cID);
-        sessionStorage.setItem("firstName", temp.firstName);
+        
         //TODO: Should probably add element or maybe another class to body to keep track of username or userID
         if(functionName == "attemptAdminLogin") 
         {
-          goToAdminScreen();
+          sessionStorage.setItem("ID", "admin");
+          sessionStorage.setItem("firstName", "admin");
+          //goToAdminScreen();
+        } else {
+          sessionStorage.setItem("ID", temp.cID);
+          sessionStorage.setItem("firstName", temp.firstName);
         }
       }
     }
@@ -715,13 +772,13 @@ function attemptLogin(username, password, functionName) {
 
 function doShowAll() {
   checkCart();
-  var list = "<tr><th>Item</th><th>Value</th><th>Quantity</th><th>REMOVE</th></tr>\n";
+  var list = "<tr><th>Item</th><th>Price</th><th>Quantity</th><th>REMOVE</th></tr>\n";
   var cart = JSON.parse(sessionStorage.getItem("cart"));
   var items = cart.items;
   var tableCartBody = document.getElementById("cartBody");
   for(var i = 0; i < items.length; i++) {
     var item = items[i];
-    list += "<tr><td>" + item.pName + "</td><td>" + item.pPrice + "</td><td id = \"quantity" + item.pID + "\">" + item.pInventory +"</td><td><button class = \"removeItem\" id = " + item.pID + " type = \"button\">Remove item</button></tr>";
+    list += "<tr><td>" + item.pName + "</td><td>" + "$" + item.pPrice + "</td><td id = \"quantity" + item.pID + "\">" + item.pInventory +"</td><td><button class = \"removeItem\" id = " + item.pID + " type = \"button\">Remove item</button></tr>";
   }
   if(list == "<tr><th>Item</th><th>Value</th></tr>") {
     list += "<tr><td><i>NO ITEMS!</i></td><td><i>NO ITEMS!</i></td></tr>";
@@ -1022,6 +1079,52 @@ function createHomeView(){
   });
 }
 
+function fillCustomerInfo(cID){
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'JSON',
+    data: {functionname: "retrieveUserInfo", id: cID},
+
+    success: function (obj) {
+      var temp = JSON.parse(obj);
+      //If there is an error value then the login was unsucceful we can display more information if wanted.
+      if (temp.error) {
+        alert("ERROR RETRIEVING ACCOUNT INFORMATION");
+      }
+      //Else, fill input fields with the user's account information
+      else {
+        var firstName = document.getElementById("firstName");
+        firstName.textContent = "FIRST NAME: " + temp.firstName;
+
+        var lastName = document.getElementById("lastName");
+        lastName.textContent = "LAST NAME: " + temp.lastName;
+
+        var mailingAddress = document.getElementById("mailingAddress");
+        mailingAddress.textContent = "MAILING ADDRESS: " + temp.mailingAddress;
+
+        var mailingCity = document.getElementById("mailingCity");
+        mailingCity.textContent = "MAILING CITY: " + temp.mailingCity;
+
+        var mailingState = document.getElementById("mailingState");
+        mailingState.textContent = "MAILING STATE: " + temp.mailingState;
+
+        var mailingZipCode = document.getElementById("mailingZipCode");
+        mailingZipCode.textContent = "MAILING ZIP CODE: " + temp.mailingZipCode;
+
+        var billingAddress = document.getElementById("billingAddress");
+        billingAddress.textContent = "BILLING ADDRESS: " + temp.billingAddress;
+
+        var phoneNumber = document.getElementById("phoneNumber");
+        phoneNumber.textContent = "PHONE NUMBER: " + temp.phoneNumber;
+
+        var email = document.getElementById("email");
+        email.textContent = "EMAIL: " + temp.email;
+      }
+    }
+  }); 
+}
+
 //Function autofills account info text boxes with the current data
 function fillUpdateInfo(cID){
   jQuery.ajax({
@@ -1035,6 +1138,11 @@ function fillUpdateInfo(cID){
       //If there is an error value then the login was unsucceful we can display more information if wanted.
       if (temp.error) {
         alert("ERROR RETRIEVING ACCOUNT INFORMATION");
+        if(sessionStorage.getItem("selectedCustomer") != null) {
+          sessionStorage.removeItem("selectedCustomer");
+          clearPage();
+          switchToEdit();
+        }
       }
       //Else, fill input fields with the user's account information
       else {
@@ -1071,15 +1179,24 @@ function fillUpdateInfo(cID){
 
 //Function updates the old account information on the database using the user's ID
 function updateAccountInfo(firstName, lastName, mailingAddress, mailingCity, mailingState, mailingZipCode, billingAddress, phoneNumber, email){
+  var cID = sessionStorage.getItem("ID");
+  if(cID == "admin")
+    cID = sessionStorage.getItem("selectedCustomer");
   jQuery.ajax({
     type: "POST",
     url: 'SQLConnect.php',
     dataType: 'text',
-    data: {functionname: "updateUserInfo", id: sessionStorage.getItem("ID"), fName: firstName, lName: lastName, mAddress: mailingAddress, mCity: mailingCity, mState: mailingState, mZipCode: mailingZipCode, bAddress: billingAddress, pNumber: phoneNumber, eMail: email},
+    data: {functionname: "updateUserInfo", id: cID, fName: firstName, lName: lastName, mAddress: mailingAddress, mCity: mailingCity, mState: mailingState, mZipCode: mailingZipCode, bAddress: billingAddress, pNumber: phoneNumber, eMail: email},
 
     success: function (obj) {
         if (obj == "\"Updated\"") {
-          sessionStorage.setItem("firstName", firstName);
+          if(sessionStorage.getItem("ID") == "admin")
+          {
+            sessionStorage.removeItem("selectedCustomer");
+          }
+          else {
+            sessionStorage.setItem("firstName", firstName);
+          }
         }
         else{
           alert("COULD NOT UPDATE ACCOUNT INFORMATION. ERROR: " + obj);
