@@ -440,22 +440,24 @@ function switchToLogin() {
 
 //Function to switch to the edit profile screen
 function switchToEdit() {
-	const login = document.getElementById("tempLogin");
-	if(login != null)
-		login.remove();
-		const create = document.getElementById("tempCreate");
-	if(create != null)
-		create.remove();
-		const verticalLine = document.getElementById("verticalLine");
-	if(verticalLine != null)
-		verticalLine.remove();    
-   
-	var stringTmp = "<h2 class=\"createHeader\">Registration Almost Complete</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">REGISTER</button>";
-	const div = document.getElementById("tempRegister");
-	div.innerHTML = stringTmp;
+	var stringTmp = "<h2 class=\"createHeader\">Update Account Information</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">UPDATE</button>";
+
+  const wrapDiv = document.createElement("div");
+  wrapDiv.className = "wrapper";
+  wrapDiv.id = "wrapDiv";
+
+  const registerDiv = document.createElement("div");
+  registerDiv.className = "register";
+  registerDiv.id = "tempRegister";
+
+  body.append(wrapDiv);
+
+  wrapDiv.appendChild(registerDiv);
+
+	registerDiv.innerHTML = stringTmp;
 	const register = document.getElementById("register");
 
-  
+  fillUpdateInfo(sessionStorage.getItem("ID"));
 
 	register.addEventListener('click', event => {
     let firstNameTxt = document.getElementById("firstName").value;
@@ -470,15 +472,20 @@ function switchToEdit() {
     
     
     const parsed = parseInt(mailingZipCodeTxt);
-    if (isNaN(parsed)) { 
+
+    if(firstNameTxt == "" || lastNameTxt == "" || mailingAddressTxt == "" || mailingCityTxt == "" || mailingStateTxt == "" || mailingZipCodeTxt == "" || billingAddressTxt == "" || phoneNumberTxt == "" || emailTxt == "")
+    {
+      alert("PLEASE FILL OUT ALL FIELDS");
+    }
+    else if(isNaN(parsed)) { 
       alert("PLEASE ONLY ENTER NUMBERS IN ZIPCODE ENTRY!");
     }
     else{
-      registerNewUser(usernameTxt, passwordTxt, firstNameTxt, lastNameTxt, mailingAddressTxt, mailingCityTxt, mailingStateTxt, mailingZipCodeTxt, billingAddressTxt, phoneNumberTxt, emailTxt);
+      //Calls updateAccountInfo to update the database
+      updateAccountInfo(firstNameTxt, lastNameTxt, mailingAddressTxt, mailingCityTxt, mailingStateTxt, mailingZipCodeTxt, billingAddressTxt, phoneNumberTxt, emailTxt);
       clearPage();
-    }
-    alert("Updated!");
-    
+    	alert("Updated!");
+    }  
   });
 }
 
@@ -964,6 +971,7 @@ function updatePrices() {
 
 function logoutUser() {
   sessionStorage.removeItem("ID");
+  sessionStorage.removeItem("firstName");
 }
 
 function createHomeView(){
@@ -1012,4 +1020,70 @@ function createHomeView(){
     clearPage();
     searchProducts(" ", "default");
   });
+}
+
+//Function autofills account info text boxes with the current data
+function fillUpdateInfo(cID){
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'JSON',
+    data: {functionname: "retrieveUserInfo", id: cID},
+
+    success: function (obj) {
+      var temp = JSON.parse(obj);
+      //If there is an error value then the login was unsucceful we can display more information if wanted.
+      if (temp.error) {
+        alert("ERROR RETRIEVING ACCOUNT INFORMATION");
+      }
+      //Else, fill input fields with the user's account information
+      else {
+        var firstName = document.getElementById("firstName");
+        firstName.value = temp.firstName
+
+        var lastName = document.getElementById("lastName");
+        lastName.value = temp.lastName
+
+        var mailingAddress = document.getElementById("mailingAddress");
+        mailingAddress.value = temp.mailingAddress
+
+        var mailingCity = document.getElementById("mailingCity");
+        mailingCity.value = temp.mailingCity
+
+        var mailingState = document.getElementById("mailingState");
+        mailingState.value = temp.mailingState
+
+        var mailingZipCode = document.getElementById("mailingZipCode");
+        mailingZipCode.value = temp.mailingZipCode
+
+        var billingAddress = document.getElementById("billingAddress");
+        billingAddress.value = temp.billingAddress
+
+        var phoneNumber = document.getElementById("phoneNumber");
+        phoneNumber.value = temp.phoneNumber
+
+        var email = document.getElementById("email");
+        email.value = temp.email
+      }
+    }
+  }); 
+}
+
+//Function updates the old account information on the database using the user's ID
+function updateAccountInfo(firstName, lastName, mailingAddress, mailingCity, mailingState, mailingZipCode, billingAddress, phoneNumber, email){
+  jQuery.ajax({
+    type: "POST",
+    url: 'SQLConnect.php',
+    dataType: 'text',
+    data: {functionname: "updateUserInfo", id: sessionStorage.getItem("ID"), fName: firstName, lName: lastName, mAddress: mailingAddress, mCity: mailingCity, mState: mailingState, mZipCode: mailingZipCode, bAddress: billingAddress, pNumber: phoneNumber, eMail: email},
+
+    success: function (obj) {
+        if (obj == "\"Updated\"") {
+          sessionStorage.setItem("firstName", firstName);
+        }
+        else{
+          alert("COULD NOT UPDATE ACCOUNT INFORMATION. ERROR: " + obj);
+        }
+	}
+  }); 
 }

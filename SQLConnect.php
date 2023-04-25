@@ -42,6 +42,12 @@
             case 'checkCode':
                 $aResult = checkCode($_POST['code']);
                 break;
+            case 'retrieveUserInfo':
+                $aResult = retrieveUserData($_POST['id']);
+			break;
+		    case 'updateUserInfo':
+                $aResult = updateCustomerInformation($_POST['id'],  $_POST['fName'], $_POST['lName'], $_POST['mAddress'], $_POST['mCity'], $_POST['mState'], $_POST['mZipCode'], $_POST['bAddress'], $_POST['pNumber'], $_POST['eMail']);
+			    break;
             default:
             //    $aResult['error'] = 'Not found function '.$_POST['functionname'].'!';
                break;
@@ -380,5 +386,55 @@
         $conn -> close();
 
         return $row;
+    }
+
+   //Uses the cID to find the matching row and returns that data to populate the account information boxes.
+   function retrieveUserData($id){
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Connection failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+
+        $query = "SELECT * FROM customers WHERE cID='$id'";
+
+        //Runs query and sets results to result
+        $result = mysqli_query($conn, $query);
+        //If there are no matching users then rows is given an error key to let javaScript know login failed.
+        //Can make more detailed if we wish to determine if user exists or such
+        if (mysqli_num_rows($result)==0) {
+            $rows = array("error" => true);
+            return json_encode($rows);
+        }
+        
+        //Otherwise will get the matching row
+        $row = mysqli_fetch_assoc($result);
+        
+        //Closes database connection
+        $conn -> close();
+
+        return json_encode($row);
+    }
+
+    //Connects to database and updates the old information at the correct row using the cID
+    function updateCustomerInformation($cID, $firstName, $lastName, $mailingAddress, $mailingCity, $mailingState, $mailingZipCode, $billingAddress, $phoneNumber, $email){
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+
+        //Connection failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+		
+	  $newQ = "UPDATE customers SET firstName='$firstName', lastName='$lastName', mailingAddress='$mailingAddress', mailingCity='$mailingCity', 
+        mailingState='$mailingState', mailingZipCode='$mailingZipCode', billingAddress='$billingAddress', phoneNumber='$phoneNumber', email='$email' WHERE cID='$cID'";
+
+        mysqli_query($conn, $newQ);
+        $conn->close();
+        return 'Updated';
     }
 ?>
