@@ -30,6 +30,13 @@ h1 {
   text-align: center;
 }
 
+.subHeader{
+  color: orange;
+  font-family:georgia,garamond,serif;
+  text-align: center;
+  margin-top: -8px;
+}
+
 /* Used to maintain layout of elements on the page */
 .wrapper {
   margin-left:auto;
@@ -405,11 +412,11 @@ h1 {
 
 /* TEMP FOR CHANGING THE STYLE OF THE TEMPORARY MESSAGE THAT SAYS WE ARE LOGGED IN */
 .log-txt {
-  width: 200px;
   font-style: italic;
   font-family: 'Times New Roman', Times, serif;
-  font-size: medium;
-  color: black;
+  font-size: 30px;
+  color: orange;
+  text-align: center;
 }
 
 .fieldset button {

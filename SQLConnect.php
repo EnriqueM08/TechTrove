@@ -455,10 +455,46 @@
             die("Connection failed: " . $conn->connect_error);
         }
 		
-	     $newQ = "UPDATE customers SET firstName='$firstName', lastName='$lastName', mailingAddress='$mailingAddress', mailingCity='$mailingCity', 
-        mailingState='$mailingState', mailingZipCode='$mailingZipCode', billingAddress='$billingAddress', phoneNumber='$phoneNumber', email='$email' WHERE cID='$cID'";
+	      //$newQ = "UPDATE customers SET firstName='$firstName', lastName='$lastName', mailingAddress='$mailingAddress', mailingCity='$mailingCity', 
+        //mailingState='$mailingState', mailingZipCode='$mailingZipCode', billingAddress='$billingAddress', phoneNumber='$phoneNumber', email='$email' WHERE cID='$cID'";
 
-        mysqli_query($conn, $newQ);
+
+		if($firstName != ""){
+            $sql = "UPDATE customers SET firstName='$firstName' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+        }
+		if($lastName != ""){
+            $sql = "UPDATE customers SET lastName='$lastName' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+		}
+		if($mailingAddress != ""){
+            $sql = "UPDATE customers SET mailingAddress='$mailingAddress' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+		}
+		if($mailingCity != ""){
+            $sql = "UPDATE customers SET mailingCity='$mailingCity' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+		}
+		if($mailingState != ""){
+            $sql = "UPDATE customers SET mailingState='$mailingState' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+		}
+		if($mailingZipCode != ""){
+            $sql = "UPDATE customers SET mailingZipCode='$mailingZipCode' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+		}
+		if($billingAddress != ""){
+            $sql = "UPDATE customers SET billingAddress='$billingAddress' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+		}
+		if($phoneNumber != ""){
+            $sql = "UPDATE customers SET phoneNumber='$phoneNumber' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+		}
+		if($email != ""){
+            $sql = "UPDATE customers SET email='$email' WHERE cID='$cID'";
+            mysqli_query($conn, $sql);
+		}
         $conn->close();
         return 'Updated';
     }

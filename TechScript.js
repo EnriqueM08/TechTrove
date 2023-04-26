@@ -44,9 +44,9 @@ editBtn.addEventListener('click', event => {
   clearPage();
   //If the user is logged in, it will display the profile edit page
   if(isLoggedIn())
-	switchToEdit();
+	  switchToEdit();
   else
-	switchToLogin();
+	  switchToLogin();
 });
 
 //This will handle when the cart button is pressed.
@@ -514,7 +514,7 @@ function switchToEdit() {
     });
   }
   else{
-	var stringTmp = "<h2 class=\"createHeader\">Update Account Information</h2><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"register\" class=\"register-btn\">UPDATE</button>";
+	var stringTmp = "<h2 class=\"createHeader\">Update Account Information</h2><h3 class=\"subHeader\">Make any changes needed, leave any space blank to leave the same</h3><form class=\"fName\"><input type=\"text\" id=\"firstName\" placeholder=\"Enter First Name\"></form><form class=\"lName\"><input type=\"text\" id=\"lastName\" placeholder=\"Enter Last Name\"></form><form class=\"mAddress\"><input type=\"text\" id=\"mailingAddress\" placeholder=\"Enter Mailing Address\"></form><form class=\"mCity\"><input type=\"text\" id=\"mailingCity\" placeholder=\"Enter Mailing City\"></form><form class=\"mState\"><input type=\"text\" id=\"mailingState\" placeholder=\"Enter Mailing State\"></form><form class=\"mZipCode\"><input type=\"text\" id=\"mailingZipCode\" placeholder=\"Enter Mailing Zip Code\"></form><form class=\"bAddress\"><input type=\"text\" id=\"billingAddress\" placeholder=\"Enter Billing Address\"></form><form class=\"pNumber\"><input type=\"text\" id=\"phoneNumber\" placeholder=\"Enter Phone Number\"></form><form class=\"eMail\"><input type=\"text\" id=\"email\" placeholder=\"Enter Email\"></form><button id=\"preview\" class=\"register-btn\">Preview Account Information</button><button id=\"register\" class=\"register-btn\">Update Account Information</button>";
 
   const registerDiv = document.createElement("div");
   registerDiv.className = "register";
@@ -530,8 +530,70 @@ function switchToEdit() {
   if(cID == "admin") {
     fillUpdateInfo(sessionStorage.getItem("selectedCustomer"))
   }
-  else
-    fillUpdateInfo(sessionStorage.getItem("ID"));
+  //else
+    //fillUpdateInfo(sessionStorage.getItem("ID"));
+
+  const preview = document.getElementById("preview");
+
+	var firstNameTxt;
+	var lastNameTxt;
+	var mailingAddressTxt;
+	var mailingCityTxt;
+	var mailingStateTxt;
+	var mailingZipCodeTxt;
+	var billingAddressTxt;
+	var phoneNumberTxt
+	var emailTxt;
+  preview.addEventListener('click', event => {
+    if(preview.textContent == "Preview Account Information"){
+      preview.textContent = "Hide Account Informatation";
+      //Store values of boxes before account information is previewed, so that the user's input isn't overwritten.
+      firstNameTxt = document.getElementById("firstName").value;
+      lastNameTxt = document.getElementById("lastName").value;
+      mailingAddressTxt = document.getElementById("mailingAddress").value;
+      mailingCityTxt = document.getElementById("mailingCity").value;
+      mailingStateTxt = document.getElementById("mailingState").value;
+      mailingZipCodeTxt = document.getElementById("mailingZipCode").value;
+      billingAddressTxt = document.getElementById("billingAddress").value;
+      phoneNumberTxt = document.getElementById("phoneNumber").value;
+      emailTxt = document.getElementById("email").value;
+      fillUpdateInfo(sessionStorage.getItem("ID"));
+	//Sets color for the previewed information to orange
+	setTimeout(() => { document.getElementById("firstName").style.color = "orange"; 
+    document.getElementById("lastName").style.color = "orange"; 
+    document.getElementById("mailingAddress").style.color = "orange"; 
+    document.getElementById("mailingCity").style.color = "orange"; 
+    document.getElementById("mailingState").style.color = "orange"; 
+    document.getElementById("mailingZipCode").style.color = "orange"; 
+    document.getElementById("billingAddress").style.color = "orange"; 
+    document.getElementById("phoneNumber").style.color = "orange"; 
+    document.getElementById("email").style.color = "orange"; 
+	}, 300);
+    }else{
+	preview.textContent = "Preview Account Information";
+      //Reverts color back to previous-ish
+	  document.getElementById("firstName").style.color = "#D3D3D3";
+	  document.getElementById("lastName").style.color = "#D3D3D3"; 
+	  document.getElementById("mailingAddress").style.color = "#D3D3D3"; 
+	  document.getElementById("mailingCity").style.color = "#D3D3D3"; 
+	  document.getElementById("mailingState").style.color = "#D3D3D3"; 
+	  document.getElementById("mailingZipCode").style.color = "#D3D3D3"; 
+	  document.getElementById("billingAddress").style.color = "#D3D3D3"; 
+	  document.getElementById("phoneNumber").style.color = "#D3D3D3"; 
+	  document.getElementById("email").style.color = "#D3D3D3"; 
+
+      //Sets values that were stored back to their boxes when the information is hidden.
+      document.getElementById("firstName").value = firstNameTxt;
+      document.getElementById("lastName").value = lastNameTxt;
+      document.getElementById("mailingAddress").value = mailingAddressTxt;
+      document.getElementById("mailingCity").value = mailingCityTxt;
+      document.getElementById("mailingState").value = mailingStateTxt;
+      document.getElementById("mailingZipCode").value = mailingZipCodeTxt;
+      document.getElementById("billingAddress").value = billingAddressTxt;
+      document.getElementById("phoneNumber").value = phoneNumberTxt;
+      document.getElementById("email").value = emailTxt;
+    }
+  });
 
 	register.addEventListener('click', event => {
     let firstNameTxt = document.getElementById("firstName").value;
@@ -547,11 +609,7 @@ function switchToEdit() {
     
     const parsed = parseInt(mailingZipCodeTxt);
 
-    if(firstNameTxt == "" || lastNameTxt == "" || mailingAddressTxt == "" || mailingCityTxt == "" || mailingStateTxt == "" || mailingZipCodeTxt == "" || billingAddressTxt == "" || phoneNumberTxt == "" || emailTxt == "")
-    {
-      alert("PLEASE FILL OUT ALL FIELDS");
-    }
-    else if(isNaN(parsed)) { 
+    if(mailingZipCodeTxt != "" && isNaN(parsed)) { 
       alert("PLEASE ONLY ENTER NUMBERS IN ZIPCODE ENTRY!");
     }
     else{
@@ -829,7 +887,7 @@ function attemptLogin(username, password, functionName) {
         //Clears the login page and then should eventually return to home page
         clearPage();
         //For testing purposes currently will add new element to screen saying login was successful
-        const txt = document.createElement("h2");
+        const txt = document.createElement("h3");
         txt.className = "log-txt";
         txt.id = "log";
         txt.textContent = "LOGGED IN SUCCESSFULLY";
@@ -846,6 +904,9 @@ function attemptLogin(username, password, functionName) {
           sessionStorage.setItem("ID", temp.cID);
           sessionStorage.setItem("firstName", temp.firstName);
         }
+		
+	      createHomeView();
+
       }
     }
   }); 
