@@ -54,11 +54,17 @@
             case 'createDiscount':
                 $aResult = createDiscount($_POST['discount'], $_POST['code'], $_POST['valid']);
                 break;
+            case 'disableDiscount':
+                $aResult = disableDiscount($_POST['code']);
+                break;
             case 'createNewItem':
                 $aResult = createNewItem($_POST['pName'], $_POST['pDescription'], $_POST['pPrice'], $_POST['pImagePath'], $_POST['pInventory'], $_POST['pCategory']);
                 break;
             case 'retrieveItemInfo':
                 $aResult = retrieveItemInfo($_POST['id']);
+                break;
+            case 'getCID':
+                $aResult = getCustomerID($_POST['userName']);
                 break;
             default:
             //    $aResult['error'] = 'Not found function '.$_POST['functionname'].'!';
@@ -80,11 +86,11 @@
 
         //TODO: Might want to change to parameterized statements to prevent injection attacks.(PROBABLY NOT NECESSARY BUT SOMETHING TO THINK ABOUT SECURITY WISE)
         // Query that will be called to find the products
-        $query = "SELECT * FROM products WHERE pName LIKE '%";
+        $query = "SELECT * FROM products WHERE (pName LIKE '%";
         $query .= $searched;
         $query .= "%' OR pDescription LIKE '%";
         $query .= $searched;
-        $query .= "%'"; //ORDER BY ";
+        $query .= "%')"; //ORDER BY ";
         switch ($filterBy) {
             case "Price: Low to High":
                 $query .= " ORDER BY pPrice ASC";
@@ -99,7 +105,7 @@
                 $query .= " ORDER BY pID DESC";
                 break;
             case "Availability":
-                $query .= " ORDER BY pInventory DESC";
+                $query .= " AND pInventory != 0 ORDER BY pInventory DESC";
             default:
                 break;
         }
@@ -455,11 +461,10 @@
             die("Connection failed: " . $conn->connect_error);
         }
 		
-	      //$newQ = "UPDATE customers SET firstName='$firstName', lastName='$lastName', mailingAddress='$mailingAddress', mailingCity='$mailingCity', 
-        //mailingState='$mailingState', mailingZipCode='$mailingZipCode', billingAddress='$billingAddress', phoneNumber='$phoneNumber', email='$email' WHERE cID='$cID'";
+	    //  $newQ = "UPDATE customers SET firstName='$firstName', lastName='$lastName', mailingAddress='$mailingAddress', mailingCity='$mailingCity', 
+        // mailingState='$mailingState', mailingZipCode='$mailingZipCode', billingAddress='$billingAddress', phoneNumber='$phoneNumber', email='$email' WHERE cID='$cID'";
 
-
-		if($firstName != ""){
+        if($firstName != ""){
             $sql = "UPDATE customers SET firstName='$firstName' WHERE cID='$cID'";
             mysqli_query($conn, $sql);
         }
@@ -495,6 +500,7 @@
             $sql = "UPDATE customers SET email='$email' WHERE cID='$cID'";
             mysqli_query($conn, $sql);
 		}
+
         $conn->close();
         return 'Updated';
     }
@@ -538,6 +544,25 @@
         mysqli_query($conn, $sql);
         $conn->close();
         return 'Created';
+    }
+
+    function disableDiscount($code) {
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+    
+        //Connection failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        
+        $sql = "UPDATE discountCodes SET valid = 0 WHERE code = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $code);
+        $stmt->execute();
+        $stmt->close();
+        $conn->close();
+        return 'Disabled';
     }
 
     function createNewItem($pName, $pDescription, $pPrice, $pImagePath, $pInventory, $pCategory) {
@@ -597,5 +622,27 @@
         $conn -> close();
 
         return json_encode($row);
+    }
+
+    function getCustomerID($userName) {
+        global $host, $username, $password, $database;
+        //Connects to the database and will die and print error if connect fails
+        $conn = new mysqli($host, $username, $password, $database);
+    
+        //Connection failed
+        if($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        
+        $sql = "SELECT cID from customers where username = '$userName'";
+        $result = mysqli_query($conn, $sql);
+        $conn->close();
+
+        if (mysqli_num_rows($result)==0) {
+            return "Error";
+        }
+        
+        $row = $result->fetch_array();
+        return $row['cID'];
     }
 ?>
